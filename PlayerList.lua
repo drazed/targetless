@@ -72,7 +72,7 @@ function targetls.PlayerList:refresh(tlist)
         if(i <= targetls.var.listmax) then
             local iupbox
             local playerlabel
-            local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetls.var.font, size=30, alignment="ACENTER" }
+            local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetls.var.font, size=25, alignment="ACENTER" }
             if v["name"] == HUD.targetname.title then
                 v.fontcolor = "255 255 255"
                 numlabel.fgcolor = "255 255 255"

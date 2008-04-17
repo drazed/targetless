@@ -77,29 +77,3 @@ targetls.var.images =
     iup.LoadImage("health.png")
 }
 
--- list containers
-targetls.var.sectortotals = nil
-targetls.var.iupself = iup.vbox {}
-targetls.var.iupplayers = iup.vbox {}
-targetls.var.iuproids = iup.vbox {}
-targetls.var.iuptotals = iup.vbox {}
-targetls.var.iupspacer1 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size= targetls.var.lswidth .."x1"}
-targetls.var.iupspacer2 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size= targetls.var.lswidth .."x1"}
-targetls.var.PlayerData = iup.zbox 
-{
-    iup.vbox
-    {
-        iup.fill {size="3"},
-        targetls.var.iupself,
-        iup.fill {size="3"},
-        targetls.var.iupspacer1,
-        iup.fill {size="3"},
-        targetls.var.iuptotals,
-        iup.fill {size="3"},
-        targetls.var.iupspacer2,
-        iup.fill {size="3"},
-        targetls.var.iupplayers,
-        targetls.var.iuproids
-    }
-}
-

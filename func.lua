@@ -132,7 +132,7 @@ function targetls.func.update()
         {
             iup.fill {},
             targettotallabel,
-            iup.fill { size="25" },
+            iup.fill { size="15" },
             roidtotallabel
         }
         targetls.var.sectortotals = iupbox

@@ -36,32 +36,6 @@ function targetls.re_attach:OnEvent(eventname, ...)
     while(targetls.PlayerList[1]) do table.remove(targetls.PlayerList, 1) end
     while(targetls.RoidList[1]) do table.remove(targetls.RoidList, 1) end
 
-    targetls.var.iupspacer1 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size= targetls.var.lswidth .."x1"}
-    targetls.var.iupspacer2 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size= targetls.var.lswidth .."x1"}
-
-    targetls.var.sectortotals = nil
-    targetls.var.iupself = iup.vbox {}
-    targetls.var.iupplayers = iup.vbox {}
-    targetls.var.iuproids = iup.vbox {}
-    targetls.var.iuptotals = iup.vbox {}
-    targetls.var.PlayerData = iup.zbox
-    {
-        iup.vbox
-        {
-            iup.fill {size="3"},
-            targetls.var.iupself,
-            iup.fill {size="3"},
-            targetls.var.iupspacer1,
-            iup.fill {size="3"},
-            targetls.var.iuptotals,
-            iup.fill {size="3"},
-            targetls.var.iupspacer2,
-            iup.fill {size="3"},
-            targetls.var.iupplayers,
-            targetls.var.iuproids
-        }
-    }
-
     targetls.appendiups()
     if GetStationLocation() == nil then targetls.func.refresh() end
     targetls.RoidList:updatesector(GetCurrentSectorid())
@@ -151,6 +125,45 @@ function targetls.init:OnEvent(eventname, ...)
 end
 
 function targetls.appendiups()
+    iup.Detach(HUD.targetframe)
+
+    targetls.var.iupspacer1 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size="QUARTER"} -- targetls.var.lswidth .."x1"}
+    targetls.var.iupspacer2 = iup.label { title="", image=targetls.var.IMAGE_DIR .."health.png", fgcolor = "255 255 255", size="QUARTER"} -- targetls.var.lswidth .."x1"}
+
+    targetls.var.sectortotals = nil
+    targetls.var.iupself = iup.vbox {}
+    targetls.var.iupplayers = iup.vbox {}
+    targetls.var.iuproids = iup.vbox {}
+    targetls.var.iuptotals = iup.vbox {}
+
+    --iup.hudrightframe {
+    targetls.var.PlayerData = iup.hbox
+    {
+        iup.fill{},
+        iup.vbox
+        {
+            iup.fill{size="30"},
+            HUD.targetframe,
+            iup.hbox {
+                iup.hudrightframe {
+                    iup.vbox {
+                        iup.fill {size="3"},
+                        targetls.var.iupself,
+                        iup.fill {size="3"},
+                       -- targetls.var.iupspacer1,
+                        iup.fill {size="3"},
+                        targetls.var.iuptotals,
+                        iup.fill {size="3"},
+                       -- targetls.var.iupspacer2,
+                        iup.fill {size="3"},
+                        targetls.var.iupplayers,
+                        targetls.var.iuproids,
+                    },
+                },
+            },
+        },
+    }
+
     local hudinfo = iup.GetParent(HUD.selfinfoframe)
     local schat = HUD.secondarychatarea
     local bsinfo = iup.GetParent(HUD.BSinfo.enemylabel)
@@ -168,7 +181,8 @@ function targetls.appendiups()
         iup.Append(HUD.alladdonlist, hudinfo)
         iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
         iup.Append(iup.GetParent(HUD.locationtext), missionup)
-        iup.Append(HUD.targetless, targetls.var.PlayerData)
+        --iup.Append(HUD.targetless, targetls.var.PlayerData)
+        iup.Append(HUD.plugins, targetls.var.PlayerData)
     else 
         local listplace = iup.vbox { iup.fill { size=20}, targetls.var.PlayerData }
         iup.Append(iup.GetParent(HUD.locationtext), listplace)

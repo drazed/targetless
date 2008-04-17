@@ -75,7 +75,9 @@ function targetls.Player:new()
             }
             return iupbox 
         elseif(tag == "name") then
-            iuplabel.title = self["name"]
+            local name = self["name"]
+            if(#name > 25) then name = name:sub(1,25) end
+            iuplabel.title = name
             iuplabel.fgcolor=FactionColor_RGB[self["faction"]] 
             if(self["faction"] > 3) then 
                 iuplabel.title = iuplabel.title .. "(" .. targetls.var.factions[self["faction"]] .. ")" 
