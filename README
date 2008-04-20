@@ -1,4 +1,4 @@
-Vendetta Online TargetLS Plugin: v1.0
+Vendetta Online TargetLess Plugin: v1.0
 
 To install:
 
@@ -9,9 +9,9 @@ To install:
 If there isn't a plugins folder there already, create one. Unzip the plugin into the plugins folder, or if you already have it uncompressed put the folder containing the fils in plugins (remember to put the whole folder in, not the contents of the folder).
 
 CLI:
-    In game chat type /targetls for a list of commands.
-        /targetls config --> options config and quick-select binds setup.
-        /targetls credits --> contact info and credits.
+    In game chat type /targetless for a list of commands.
+        /targetless config --> options config and quick-select binds setup.
+        /targetless credits --> contact info and credits.
 
 Author: Adrian (drazed) Zakrzewski
 contact: drazed@gmail.com

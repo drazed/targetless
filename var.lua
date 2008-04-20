@@ -3,69 +3,69 @@
 -- Author: Adrian (drazed) Zakrzewski
 -- contact: drazed@gmail.com
 
-targetls.var = {}
-targetls.var.timer = Timer()
-targetls.var.version = "v1.5.11"
-targetls.var.state = true
-targetls.var.updatelock = false
-targetls.var.targetnum = 0
-targetls.var.listpage = "target"
+targetless.var = {}
+targetless.var.timer = Timer()
+targetless.var.version = "1.6.alpha0"
+targetless.var.state = true
+targetless.var.updatelock = false
+targetless.var.targetnum = 0
+targetless.var.listpage = "target"
 
 -- config settings
-targetls.var.refreshDelay = tonumber(gkini.ReadString("targetls", "refresh", "1500"))
-targetls.var.place = gkini.ReadString("targetls", "place", "right")
-targetls.var.sortBy = gkini.ReadString("targetls", "sort", "distance")
-targetls.var.font = targetls.func.getfont(gkini.ReadString("targetls", "font", "Font.H6"))
-targetls.var.showRoid = gkini.ReadString("targetls", "roidtab", "ON")
-targetls.var.showtls = gkini.ReadString("targetls", "showtls", "ON")
-targetls.var.showself = gkini.ReadString("targetls", "self", "ON")
-targetls.var.listmax = tonumber(gkini.ReadString("targetls", "listmax", "10"))
-targetls.var.lswidth = tonumber(gkini.ReadString("targetls", "hudwidth", "300"))
+targetless.var.refreshDelay = tonumber(gkini.ReadString("targetless", "refresh", "1500"))
+targetless.var.place = gkini.ReadString("targetless", "place", "right")
+targetless.var.sortBy = gkini.ReadString("targetless", "sort", "distance")
+targetless.var.font = targetless.func.getfont(gkini.ReadString("targetless", "font", "Font.H6"))
+targetless.var.showRoid = gkini.ReadString("targetless", "roidtab", "ON")
+targetless.var.showtls = gkini.ReadString("targetless", "showtls", "ON")
+targetless.var.showself = gkini.ReadString("targetless", "self", "ON")
+targetless.var.listmax = tonumber(gkini.ReadString("targetless", "listmax", "10"))
+targetless.var.lswidth = tonumber(gkini.ReadString("targetless", "hudwidth", "300"))
 
 -- layout format strings
-targetls.var.layout = {}
-targetls.var.layout.self = gkini.ReadString("targetls", "selflayout", "{<tab><tab><tab><health><name><fill><lstand>}")
-targetls.var.layout.pc = gkini.ReadString("targetls", "pclayout", "{<health><name><fill><istand><sstand><ustand><lstand>}{<distance><ship>}")
-targetls.var.layout.npc = gkini.ReadString("targetls", "npclayout", "{<health><name><fill><lstand>}{<distance><ship>}")
-targetls.var.layout.roid = gkini.ReadString("targetls", "roidlayout", "{<tab><note><fill><id>}{<tab><ore>}")
+targetless.var.layout = {}
+targetless.var.layout.self = gkini.ReadString("targetless", "selflayout", "{<tab><tab><tab><health><name><fill><lstand>}")
+targetless.var.layout.pc = gkini.ReadString("targetless", "pclayout", "{<health><name><fill><istand><sstand><ustand><lstand>}{<distance><ship>}")
+targetless.var.layout.npc = gkini.ReadString("targetless", "npclayout", "{<health><name><fill><lstand>}{<distance><ship>}")
+targetless.var.layout.roid = gkini.ReadString("targetless", "roidlayout", "{<tab><note><fill><id>}{<tab><ore>}")
 
 -- factions enum
-targetls.var.factions = {}
-targetls.var.factions[12] = "Ineubis"
-targetls.var.factions[6] = "Valent"
-targetls.var.factions[99] = "Dev"
-targetls.var.factions[1] = "Itani"
-targetls.var.factions[3] = "Union"
-targetls.var.factions[7] = "Orion"
-targetls.var.factions[2] = "Serco"
-targetls.var.factions[8] = "Axia"
-targetls.var.factions[4] = "TPG"
-targetls.var.factions[9] = "Corvus"
-targetls.var.factions[0] = "Unaligned"
-targetls.var.factions[10] = "Tunguska"
-targetls.var.factions[5] = "BioCom"
-targetls.var.factions[11] = "Aeolus"
-targetls.var.factions[13] = "XangXi"
+targetless.var.factions = {}
+targetless.var.factions[12] = "Ineubis"
+targetless.var.factions[6] = "Valent"
+targetless.var.factions[99] = "Dev"
+targetless.var.factions[1] = "Itani"
+targetless.var.factions[3] = "Union"
+targetless.var.factions[7] = "Orion"
+targetless.var.factions[2] = "Serco"
+targetless.var.factions[8] = "Axia"
+targetless.var.factions[4] = "TPG"
+targetless.var.factions[9] = "Corvus"
+targetless.var.factions[0] = "Unaligned"
+targetless.var.factions[10] = "Tunguska"
+targetless.var.factions[5] = "BioCom"
+targetless.var.factions[11] = "Aeolus"
+targetless.var.factions[13] = "XangXi"
 
-targetls.var.orecolor = {}
-targetls.var.orecolor["Aquean"] = "\127aec6d6"
-targetls.var.orecolor["Silicate"] = "\1279c8a5f"
-targetls.var.orecolor["Carbonic"] = "\127749281"
-targetls.var.orecolor["Ferric"] = "\127a4a39b"
-targetls.var.orecolor["Ishik"] = "\12712d7e7"
-targetls.var.orecolor["VanAzek"] = "\127dda994"
-targetls.var.orecolor["Xithricite"] = "\12716ef25"
-targetls.var.orecolor["Lanthanic"] = "\127a320e5"
-targetls.var.orecolor["Denic"] = "\12713a2d9"
-targetls.var.orecolor["Pyronic"] = "\127e38163"
-targetls.var.orecolor["Apicene"] = "\12725578d"
-targetls.var.orecolor["Pentric"] = "\127f9f825"
-targetls.var.orecolor["Heliocene"] = "\127d73d25"
+targetless.var.orecolor = {}
+targetless.var.orecolor["Aquean"] = "\127aec6d6Aq\127o"
+targetless.var.orecolor["Silicate"] = "\1279c8a5fSi\127o"
+targetless.var.orecolor["Carbonic"] = "\127749281Ca\127o"
+targetless.var.orecolor["Ferric"] = "\127a4a39bFe\127o"
+targetless.var.orecolor["Ishik"] = "\12712d7e7Is\127o"
+targetless.var.orecolor["VanAzek"] = "\127dda994Va\127o"
+targetless.var.orecolor["Xithricite"] = "\12716ef25Xi\127o"
+targetless.var.orecolor["Lanthanic"] = "\127a320e5La\127o"
+targetless.var.orecolor["Denic"] = "\12713a2d9De\127o"
+targetless.var.orecolor["Pyronic"] = "\127e38163Py\127o"
+targetless.var.orecolor["Apicene"] = "\12725578dAp\127o"
+targetless.var.orecolor["Pentric"] = "\127f9f825Pe\127o"
+targetless.var.orecolor["Heliocene"] = "\127d73d25He\127o"
 
 
 -- icons
-targetls.var.IMAGE_DIR = "plugins/targetLS/images/"
-targetls.var.images = 
+targetless.var.IMAGE_DIR = "plugins/targetless/images/"
+targetless.var.images = 
 {
     iup.LoadImage("POS.png"),
     iup.LoadImage("admire.png"),

@@ -3,90 +3,69 @@
 -- Author: Adrian (drazed) Zakrzewski
 -- contact: drazed@gmail.com
 
-targetls.func = {}
+targetless.func = {}
 
-function targetls.func.lsswitch()
-    if targetls.var.listpage == "target" then
---        targetls.var.listpage = "player"
---        targetls.PlayerList.shownpc = "OFF"
---    elseif targetls.var.listpage == "player" then
---        targetls.var.listpage = "npc"
---        targetls.PlayerList.showpc = "OFF"
---        targetls.PlayerList.shownpc = "ON"
---    elseif targetls.var.listpage == "npc" then
-        targetls.var.listpage = "roid"
-        targetls.PlayerList:clear()
-        targetls.RoidList:updatesector(GetCurrentSectorid())
-    else
-        targetls.var.listpage = "target"
-        targetls.RoidList:clear()
---        targetls.PlayerList.showpc = "ON"
---        targetls.PlayerList.shownpc = "ON"
-    end
-    targetls.func.update()
-end
-
-function targetls.func.settarget(number)
-    if targetls.var.listpage == "target" then
-        if targetls.PlayerList[tonumber(number)] ~= nil then
-            targetls.PlayerList[tonumber(number)]:target()
+function targetless.func.settarget(number)
+    if targetless.Lists.mode ~= ("Ore" or "none") then
+        if targetless.PlayerList[tonumber(number)] ~= nil then
+            targetless.PlayerList[tonumber(number)]:target()
         end
     else
-        if targetls.RoidList[tonumber(number)] ~= nil then
-            targetls.RoidList[tonumber(number)]:target()
+        if targetless.RoidList[tonumber(number)] ~= nil then
+            targetless.RoidList[tonumber(number)]:target()
         end
     end
 end
 
-function targetls.func.targetnext()
-    if targetls.var.listpage == "target" then
-        if targetls.var.targetnum >= #(targetls.PlayerList) or targetls.var.targetnum >= targetls.var.listmax then
-            targetls.var.targetnum = 1 
-        else targetls.var.targetnum = targetls.var.targetnum + 1 end
-        local player = targetls.PlayerList[targetls.var.targetnum]
+function targetless.func.targetnext()
+    if targetless.Lists.mode ~= ("Ore" or "none") then
+        if targetless.var.targetnum >= #(targetless.PlayerList) or targetless.var.targetnum >= targetless.var.listmax then
+            targetless.var.targetnum = 1 
+        else targetless.var.targetnum = targetless.var.targetnum + 1 end
+        local player = targetless.PlayerList[targetless.var.targetnum]
         if player then 
             player:target() 
         end
     else
-        if targetls.var.targetnum >= #(targetls.RoidList) or targetls.var.targetnum >= targetls.var.listmax then
-            targetls.var.targetnum = 1 
-        else targetls.var.targetnum = targetls.var.targetnum + 1 end
-        local roid = targetls.RoidList[targetls.var.targetnum]
+        if targetless.var.targetnum >= #(targetless.RoidList) or targetless.var.targetnum >= targetless.var.listmax then
+            targetless.var.targetnum = 1 
+        else targetless.var.targetnum = targetless.var.targetnum + 1 end
+        local roid = targetless.RoidList[targetless.var.targetnum]
         if roid then
             roid:target()
         end
     end
 end
 
-function targetls.func.targetprev()
-    if targetls.var.listpage == "target" then
-        if targetls.var.targetnum <= 1 then
-            if #(targetls.PlayerList) <= targetls.var.listmax then
-                targetls.var.targetnum = #(targetls.PlayerList)
+function targetless.func.targetprev()
+    if targetless.Lists.mode ~= ("Ore" or "none") then
+        if targetless.var.targetnum <= 1 then
+            if #(targetless.PlayerList) <= targetless.var.listmax then
+                targetless.var.targetnum = #(targetless.PlayerList)
             else
-                targetls.var.targetnum = targetls.var.listmax 
+                targetless.var.targetnum = targetless.var.listmax 
             end
-        else targetls.var.targetnum = targetls.var.targetnum - 1 end
-        local player = targetls.PlayerList[targetls.var.targetnum]
+        else targetless.var.targetnum = targetless.var.targetnum - 1 end
+        local player = targetless.PlayerList[targetless.var.targetnum]
         if player then 
             player:target()
         end
     else
-        if targetls.var.targetnum <= 1 then
-            if #(targetls.RoidList) <= targetls.var.listmax then
-                targetls.var.targetnum = #(targetls.RoidList)
+        if targetless.var.targetnum <= 1 then
+            if #(targetless.RoidList) <= targetless.var.listmax then
+                targetless.var.targetnum = #(targetless.RoidList)
             else
-                targetls.var.targetnum = targetls.var.listmax 
+                targetless.var.targetnum = targetless.var.listmax 
             end
-        else targetls.var.targetnum = targetls.var.targetnum - 1 end
-        local roid = targetls.RoidList[targetls.var.targetnum]
+        else targetless.var.targetnum = targetless.var.targetnum - 1 end
+        local roid = targetless.RoidList[targetless.var.targetnum]
         if roid then
             roid:target()
         end
     end
 end
 
-function targetls.func.getfont(fontstr)
+function targetless.func.getfont(fontstr)
     if fontstr == "Font.H5" then
         return Font.H5
     elseif fontstr == "Font.H6" then
@@ -96,49 +75,11 @@ function targetls.func.getfont(fontstr)
     end
 end
 
-function targetls.func.refresh()
-    if targetls.var.state == true then 
-        targetls.func.update()
-        targetls.var.timer:SetTimeout(targetls.var.refreshDelay, function() targetls.func.refresh() end)
+function targetless.func.refresh()
+    if targetless.var.state == true then 
+        --targetless.func.update()
+        targetless.Lists:update()
+        targetless.var.timer:SetTimeout(targetless.var.refreshDelay, function() targetless.func.refresh() end)
     end
 end
 
-function targetls.func.update()
-    if HUD.hud_toggled_off then return end
-    if targetls.var.updatelock == false then
-        targetls.var.updatelock = true
-
-        if(targetls.var.sectortotals ~= nil) then
-            iup.Detach(targetls.var.sectortotals)
-            iup.Destroy(targetls.var.sectortotals)
-            targetls.var.sectortotals = nil
-        end
-
-        targetls.PlayerList.all = 0
-        ForEachPlayer(function (id)
-            targetls.PlayerList.all = targetls.PlayerList.all + 1
-        end)
-
-        local targettitle = "Ships:"
-        if targetls.var.listpage ~= "roid" then targetls.PlayerList:refresh()
-        else targetls.RoidList:refresh() end
-
-        local targettotallabel = iup.label { title=targettitle..targetls.PlayerList.all-2, fgcolor="155 155 155",  font=targetls.var.font }
-        local roidtotallabel = iup.label { title="Scanned Roids: "..targetls.RoidList.roidcount, fgcolor="155 155 155", font=targetls.var.font }
-
-        if targetls.var.listpage ~= "roid" then targettotallabel.fgcolor = "255 255 255"
-        else roidtotallabel.fgcolor = "255 255 255" end
-        local iupbox = iup.hbox
-        {
-            iup.fill {},
-            targettotallabel,
-            iup.fill { size="15" },
-            roidtotallabel
-        }
-        targetls.var.sectortotals = iupbox
-        iup.Append(targetls.var.iuptotals, targetls.var.sectortotals)
-        iup.Map(iup.GetDialog(targetls.var.sectortotals))
-        iup.Refresh(targetls.var.PlayerData)
-        targetls.var.updatelock = false
-    end
-end
