@@ -3,7 +3,7 @@ targetless.ui.modes.element = {}
 targetless.ui.modes.element.desc = iup.label{title="Configure your targetting modes here."}
 
 targetless.ui.modes.main = iup.vbox{
-	iup.label{title="Target Modes", expand="HORIZONTAL", font=Font.H3},
+	iup.label{title="TargetLess Modes", expand="HORIZONTAL", font=Font.H3},
 	iup.hbox{
 		iup.fill{},
 		alignment="ACENTER",

@@ -1,140 +1,344 @@
-declare("roiddb", {})
-
-roiddb.sector_table = {}
-
+-- The ui.ore Dialog
 targetless.ui.ore = {}
+targetless.ui.ore.sectorname2id = {}
 
-local plot = gkini.ReadString("targetless", "roid_clickplot", "ON")
-
-local function sysplural(n)
-	if not n then return "no route" end
-	return n == 1 and "1 system" or n.." systems"
+function targetless.ui.ore.savelist(sid)
+    if(sid and sid ~= 0) then
+        local roids = ""
+        local i = 1
+        while(targetless.ui.ore.element.rlist[i]) do
+            local roid = {}
+            string.gsub(targetless.ui.ore.element.rlist[i],"<(.-)>", function(a) table.insert(roid,a) end)
+            roids = roids.."<"..roid[1]..">"
+            gkini.WriteString("roidls"..sid,""..roid[1],targetless.ui.ore.element.rlist[i])
+            i = i + 1
+        end
+        gkini.WriteString("roidls"..sid,"roids",roids)
+    end
 end
 
-roiddb.sectorsort = {
-	[1] = {
-		name = "Sector",
-		fn = function(a,b) return ShortLocationStr(a.sector) < ShortLocationStr(b.sector) end,
-		itementry_fn = function(s) return ShortLocationStr(s.sector) end,
-	},
-	[2] = {
-		name = "Scanned Roids",
-		fn = function(a,b)
-			if a.num ~= b.num then
-				return a.num > b.num
-			else
-				return ShortLocationStr(a.sector) < ShortLocationStr(b.sector)
-			end
-		end,
-		itementry_fn = function(s) return s.num end,
-	},
-	[3] = {
-		name = "Distance",
-		fn = function(a,b)
-			local adist, bdist = targetless.ui.getdist(a.sector, b.sector)
-			if adist ~= bdist then
-				return adist < bdist
-			else
-				return ShortLocationStr(a.sector) < ShortLocationStr(b.sector)
-			end
-		end,
-		itementry_fn = function(s) return sysplural(targetless.ui.getdist(s.sector)) end,
-	},
-	table_sort = {},
-	table_system = {},
-	onedit=function(self, row, col, mode)
-		if plot == "ON" and mode == 1 and self.table_sort[row] then
-			local sector = self.table_sort[row].sector
-			NavRoute.SetFullRoute{sector}
-			targetless.ui.logintext.title = "NavRoute set to ".. ShortLocationStr(sector)
-			FadeControl(targetless.ui.logintext, 5, 4, 0)
-		end
-	end,
-}
+function targetless.ui.ore.loadlist(sid)
+    -- load this sectors list
+    if(sid and sid ~= 0) then
+        local i = 1 
+        while(targetless.ui.ore.element.rlist[i] ~= nil) do
+            targetless.ui.ore.element.rlist[i] = nil
+            i = i + 1
+        end
 
-local systems = {}
-for i=1, #SystemNames do systems[i] = " "..SystemNames[i] end
-table.sort(systems)
+        local string = gkini.ReadString("roidls"..sid, "roids", "")
+        local roids = {}
+        local sectorroids = {}
+        if string ~= "" then
+            string.gsub(string,"<(.-)>", function(a) table.insert(roids,a) end)
+            for i,v in ipairs(roids) do
+                local roidstr = gkini.ReadString("roidls"..sid, ""..v, "")
+                if roidstr ~= "" then
+                    table.insert(sectorroids, roidstr)
+                end
+            end
+        end
 
-targetless.ui.ore.systemlist = iup.stationhighopacitysublist{" All Systems", dropdown="YES", visible_items="15", value=1,
-	action=function(self, s, i, v)
-		if roiddb.sectorsort.table_system[1] then
-			local selsys
-			if s ~= " All Systems" then selsys = SystemNames[s:lower():match(" (%w+)")] else selsys = false end
-			targetless.ui.ore.sectormat:populate(function()
-				roiddb.sectorsort.table_sort = {}
-				for i,v in ipairs(roiddb.sectorsort.table_system) do
-					if selsys then
-						if selsys == GetSystemID(v.sector) then roiddb.sectorsort.table_sort[#roiddb.sectorsort.table_sort+1] = v end
-					else
-						roiddb.sectorsort.table_sort[#roiddb.sectorsort.table_sort+1] = v
-					end
-				end
-			end)
-		end
-	end
-}
-for i=1, #systems do targetless.ui.ore.systemlist[i+1] = systems[i] end
+        for i,v in ipairs(sectorroids) do
+            targetless.ui.ore.element.rlist[i] = v
+            targetless.ui.ore.element.rlist.value = i 
+        end
+    end
+end
 
-targetless.ui.ore.searchtext = iup.text{expand="HORIZONTAL", action=function(self, k, v)
-	targetless.ui.ore.go.active = #v > 0 and "YES" or "NO"
-	if k == 13 and #v > 0 then targetless.ui.ore.go:action() end
-end}
-
-targetless.ui.ore.go = iup.stationbutton{title="Search", active="NO", size=75,
-	action=function(self)
-		local rtype = targetless.ui.ore.searchtext.value
-		targetless.ui.ore.searchtext.value = ""
-		self.active = "NO"
-		roiddb.sector_table = {}
-		roiddb.sectorsort.table_sort = {}
-		roiddb.sectorsort.table_system = {}
-		targetless.findsectors(rtype)
-	end,
-}
-
-targetless.ui.ore.clear = iup.stationbutton{title="Clear", active="NO", size=75,
-	action=function(self)
-		targetless.ui.ore.sectormat:populate(function()
-			roiddb.sector_table = {}
-			roiddb.sectorsort.table_sort = {}
-			roiddb.sectorsort.table_system = {}
-			targetless.ui.ore.clear.active = "NO"
-		end)
-	end,
-}
-
-targetless.ui.ore.sectormat = targetless.ui.matrix(roiddb.sectorsort)
-
-targetless.ui.ore.clickplot = iup.stationtoggle{value=plot, title="Automatically set navroute when you double-click on a sector"}
+targetless.ui.ore.element = {}
+targetless.ui.ore.element.slist = iup.list { dropdown="YES",size="300" }
+targetless.ui.ore.element.rlist = iup.pdasubsubsublist{value=0,size="400x300",expand="HORIZONTAL"}
+targetless.ui.ore.element.upbutton = iup.stationbutton { title = "  up  " }
+targetless.ui.ore.element.downbutton = iup.stationbutton { title = "down" }
+targetless.ui.ore.element.editbutton = iup.stationbutton { title = "   Edit   " }
+targetless.ui.ore.element.removebutton = iup.stationbutton { title = "Remove", fgcolor="255 0 0" }
+    
+targetless.ui.ore.mainbox = iup.vbox
+{
+    iup.hbox
+    {
+        --rlist is populated on open/sector select...
+        iup.label { title = "\127ddddddSector: \127o", size="100"},
+        targetless.ui.ore.element.slist,
+        iup.fill {}
+    },
+    iup.vbox
+    {
+        --rlist is populated on open/sector select...
+        targetless.ui.ore.element.rlist,
+        iup.hbox
+        {
+            targetless.ui.ore.element.editbutton,
+            targetless.ui.ore.element.removebutton,
+            iup.fill{},
+            targetless.ui.ore.element.downbutton,
+            targetless.ui.ore.element.upbutton,
+        },
+    },
+ }
 
 targetless.ui.ore.main = iup.vbox{
-	iup.hbox{iup.label{title="Roid Type:"}, targetless.ui.ore.searchtext, targetless.ui.ore.systemlist, targetless.ui.ore.go, targetless.ui.ore.clear, gap=5, alignment="ACENTER"},
-	targetless.ui.ore.sectormat,
-	gap=5,
-	tabtitle="Scanned Ore",
+	iup.label{title="Scanned Ore", expand="HORIZONTAL", font=Font.H3},
+	iup.hbox{
+		iup.fill{},
+		alignment="ACENTER",
+		gap=5,
+	},
+    targetless.ui.ore.mainbox,
+	iup.fill{},
+	gap=15,
 	margin="2x2",
+	tabtitle="Scanned Ore",
 	alignment="ACENTER",
-	OnShow=function(self)
-		targetless.ui.ore.sectormat:update()
-	end,
-	OnHide=function(self) end,
-	hotkey=iup.K_o,
+	hotkey=iup.K_S,
 }
 
-targetless.ui.ore.options = iup.vbox{
-	targetless.ui.ore.clickplot,
-	gap=5,
-	alignment="ALEFT",
-	hotkey=iup.K_o,
-	tabtitle="Scanned Ore",
-	margin="2x2",
-	OnShow=function(self)
-		plot = gkini.ReadString("targetless", "roid_clickplot", "ON")
-		targetless.ui.ore.clickplot.value = plot
-	end,
-	OnHide=function(self)
-		plot = targetless.ui.ore.clickplot.value
-		gkini.WriteString("targetless", "roid_clickplot", plot)
-	end,
+function targetless.ui.ore.main:OnShow() 
+    -- generate lists and show
+    targetless.ui.ore.element.slist.value = 0
+    targetless.ui.ore.sectorname2id = {}
+    local sectors = {}
+    string.gsub(gkini.ReadString("roidls", "sectors", ""),"<(.-)>", function(a) table.insert(sectors,a) end)
+    for i,sid in ipairs(sectors) do 
+        iup.SetAttribute(targetless.ui.ore.element.slist,i,ShortLocationStr(tonumber(sid))) 
+        if(tonumber(sid)==GetCurrentSectorid()) then 
+            targetless.ui.ore.element.slist.value = i 
+        end
+        targetless.ui.ore.sectorname2id[ShortLocationStr(tonumber(sid))] = sid
+    end
+    targetless.ui.ore.loadlist(GetCurrentSectorid())
+end
+
+function targetless.ui.ore.main:OnHide() 
+    targetless.ui.ore.savelist(targetless.ui.ore.sectorname2id[targetless.ui.ore.element.slist[targetless.ui.ore.element.slist.value]])
+    targetless.RoidList:clear()
+    targetless.RoidList:updatesector(GetCurrentSectorid())
+    targetless.Lists:update()
+end
+
+function targetless.ui.ore.element.editbutton:action()
+    local roidstr = targetless.ui.ore.element.rlist[targetless.ui.ore.element.rlist.value]
+    local roid =  {}
+    string.gsub(roidstr,"<(.-)>", function(a) table.insert(roid, a) end)
+    targetless.ui.ore.edit.element.id.title = roid[1]
+    targetless.ui.ore.edit.element.id.title = roid[1]
+    targetless.ui.ore.edit.element.note.value = roid[2] 
+    targetless.ui.ore.edit.element.ore.title = roid[3] 
+    targetless.ui.ore.edit.dlg:show()
+    iup.Refresh(targetless.ui.ore.edit.dlg)
+end
+
+function targetless.ui.ore.element.removebutton:action()
+    local i = targetless.ui.ore.element.rlist.value
+    while(targetless.ui.ore.element.rlist[i] ~= nil) do
+        targetless.ui.ore.element.rlist[i] = targetless.ui.ore.element.rlist[i+1]
+        i = i + 1
+    end
+    if(targetless.ui.ore.element.rlist[targetless.ui.ore.element.rlist.value] == nil) then targetless.ui.ore.element.rlist.value = targetless.ui.ore.element.rlist.value - 1 end
+end
+
+function targetless.ui.ore.element.upbutton:action()
+    local i = targetless.ui.ore.element.rlist.value
+    if(tonumber(i) > 1) then
+        local tmproid = targetless.ui.ore.element.rlist[i]
+        targetless.ui.ore.element.rlist[i] = targetless.ui.ore.element.rlist[i-1]
+        targetless.ui.ore.element.rlist[i-1] = tmproid
+        targetless.ui.ore.element.rlist.value = i - 1
+    end
+end
+
+function targetless.ui.ore.element.downbutton:action()
+    local i = targetless.ui.ore.element.rlist.value
+    if(targetless.ui.ore.element.rlist[i+1] ~= nil) then
+        local tmproid = targetless.ui.ore.element.rlist[i]
+        targetless.ui.ore.element.rlist[i] = targetless.ui.ore.element.rlist[i+1]
+        targetless.ui.ore.element.rlist[i+1] = tmproid
+        targetless.ui.ore.element.rlist.value = i + 1
+    end
+end
+
+function targetless.ui.ore.element.slist:action(t,i,v)
+    -- t is sector name, i is location in list, v is action state
+    if(v == 0) then 
+        -- this is the off callback for slist[i]
+        targetless.ui.ore.savelist(targetless.ui.ore.sectorname2id[targetless.ui.ore.element.slist[i]])
+    elseif(v == 1) then 
+        -- this is the on callback for slist[i]
+        targetless.ui.ore.loadlist(targetless.ui.ore.sectorname2id[targetless.ui.ore.element.slist[i]])
+    end
+end
+
+-- Edit dialog
+targetless.ui.ore.edit = {}
+targetless.ui.ore.edit.element = {}
+targetless.ui.ore.edit.element.id = iup.label { title="" }
+targetless.ui.ore.edit.element.ore = iup.label { title="" }
+targetless.ui.ore.edit.element.note = iup.text { value="", size="200px" }
+targetless.ui.ore.edit.element.okbutton = iup.stationbutton { title = "OK" }
+targetless.ui.ore.edit.element.cancelbutton = iup.stationbutton { title = "Cancel" }
+    
+targetless.ui.ore.edit.mainbox = iup.pdarootframe
+{
+    iup.pdasubframebg
+    {
+        iup.vbox
+        {
+            iup.hbox
+            {
+                iup.label { title = "\127ffffffEdit Roid:\127o\n", expand = "HORIZONTAL" },
+                iup.fill {}
+            },
+            iup.fill { size = "10"},
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "ID:  " },
+                targetless.ui.ore.edit.element.id,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "Ore:  " },
+                targetless.ui.ore.edit.element.ore,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "Note:" },
+                targetless.ui.ore.edit.element.note,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.fill { size = "20" },
+            iup.hbox
+            {
+                iup.fill{},
+                targetless.ui.ore.edit.element.okbutton,
+                targetless.ui.ore.edit.element.cancelbutton
+            }
+        }
+    }
 }
+
+function targetless.ui.ore.edit.element.okbutton:action()
+    targetless.ui.ore.element.rlist[targetless.ui.ore.element.rlist.value] = "<"..
+        targetless.ui.ore.edit.element.id.title.."><"..
+        targetless.ui.ore.edit.element.note.value.."><"..
+        targetless.ui.ore.edit.element.ore.title..">"
+    targetless.ui.ore.edit.element.id.title = ""
+    targetless.ui.ore.edit.element.ore.title = ""
+    targetless.ui.ore.edit.element.note.value = ""
+    targetless.ui.ore.edit.dlg:hide()
+end
+
+function targetless.ui.ore.edit.element.cancelbutton:action()
+    targetless.ui.ore.edit.element.id.title = ""
+    targetless.ui.ore.edit.element.ore.title = ""
+    targetless.ui.ore.edit.element.note.value = ""
+    targetless.ui.ore.edit.dlg:hide()
+end
+
+targetless.ui.ore.edit.dlg = iup.dialog 
+{
+    targetless.ui.ore.edit.mainbox;
+    BORDER="NO",
+    topmost = "YES",
+    RESIZE="NO",
+    MAXBOX="NO",
+    MINBOX="NO",
+    MENUBOX="NO",
+    MODAL="YES",
+}
+
+-- Add dialog
+targetless.ui.ore.add = {}
+targetless.ui.ore.add.element = {}
+targetless.ui.ore.add.element.id = iup.label { title="" }
+targetless.ui.ore.add.element.ore = iup.label { title="" }
+targetless.ui.ore.add.element.note = iup.text { value="", size="200px" }
+targetless.ui.ore.add.element.okbutton = iup.stationbutton { title = "OK" }
+targetless.ui.ore.add.element.cancelbutton = iup.stationbutton { title = "Cancel" }
+    
+targetless.ui.ore.add.mainbox = iup.pdarootframe
+{
+    iup.pdasubframebg
+    {
+        iup.vbox
+        {
+            iup.hbox
+            {
+                iup.label { title = "\127ffffffAdd Roid:\127o\n", expand = "HORIZONTAL" },
+                iup.fill {}
+            },
+            iup.fill { size = "10"},
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "ID:  " },
+                targetless.ui.ore.add.element.id,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "Ore:  " },
+                targetless.ui.ore.add.element.ore,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.hbox
+            {
+                iup.fill { size = "20"},
+                iup.label { title = "Note:" },
+                targetless.ui.ore.add.element.note,
+                iup.fill {},
+                iup.fill { size = "20"}
+            },
+            iup.fill { size = "20" },
+            iup.hbox
+            {
+                iup.fill{},
+                targetless.ui.ore.add.element.okbutton,
+                targetless.ui.ore.add.element.cancelbutton
+            }
+        }
+    }
+}
+
+function targetless.ui.ore.add.element.okbutton:action()
+    targetless.RoidList:add(targetless.ui.ore.add.element.id.title,
+                          targetless.ui.ore.add.element.note.value,
+                          targetless.ui.ore.add.element.ore.title)
+    targetless.ui.ore.add.element.id.title = ""
+    targetless.ui.ore.add.element.ore.title = ""
+    targetless.ui.ore.add.element.note.value = ""
+    targetless.RoidList:updatesector(GetCurrentSectorid())
+    targetless.Lists:update()
+    targetless.ui.ore.add.dlg:hide()
+end
+
+function targetless.ui.ore.add.element.cancelbutton:action()
+    targetless.ui.ore.add.element.id.title = ""
+    targetless.ui.ore.add.element.ore.title = ""
+    targetless.ui.ore.add.element.note.value = ""
+    targetless.ui.ore.add.dlg:hide()
+end
+
+targetless.ui.ore.add.dlg = iup.dialog 
+{
+    targetless.ui.ore.add.mainbox;
+    BORDER="NO",
+    topmost = "YES",
+    RESIZE="NO",
+    MAXBOX="NO",
+    MINBOX="NO",
+    MENUBOX="NO",
+    MODAL="YES",
+}
+

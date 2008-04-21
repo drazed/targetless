@@ -130,20 +130,22 @@ end
 
 dofile("ui/UIconfig.lua")
 dofile("ui/home_ui.lua")
+dofile("ui/options_ui.lua")
 dofile("ui/modes_ui.lua")
-dofile("ui/binds_ui.lua")
+dofile("ui/controls_ui.lua")
 dofile("ui/roid_ui.lua")
 
 dofile("ui/ui_options.lua")
 
-targetless.ui.close = iup.stationbutton{title="Close", expand="HORIZONTAL", action=function(self) HideDialog(targetless.ui.dlg) end}
+targetless.ui.close = iup.stationbutton{title="Target, Shoot, Kill!! Profit?", expand="HORIZONTAL", action=function(self) HideDialog(targetless.ui.dlg) end}
 targetless.ui.optionsbutton = iup.stationbutton{title="Options", hotkey=iup.K_o, action=function() ShowDialog(targetless.options.dlg) targetless.options.tabs:OnShow() end}
 targetless.ui.logintext = iup.label{title="", alignment="ACENTER", expand="HORIZONTAL", font=Font.H3}
 
 targetless.ui.tabs = iup.roottabtemplate{
 	targetless.ui.home.main,
+	targetless.ui.options.main,
 	targetless.ui.modes.main,
-	targetless.ui.binds.main,
+	targetless.ui.controls.main,
 	targetless.ui.ore.main,
 	secondary = iup.hbox{
 		iup.fill{},
@@ -163,13 +165,13 @@ targetless.ui.dlg = iup.dialog{
 			iup.fill{},
 			iup.pdarootframe{
 				iup.vbox{
-					targetless.ui.tabs,
 					iup.hbox{
-						targetless.ui.optionsbutton,
+--						targetless.ui.optionsbutton,
 						targetless.ui.close,
 						gap=5,
 						alignment="ACENTER",
 					},
+					targetless.ui.tabs,
 					expand="NO",
 					gap=8,
 				},

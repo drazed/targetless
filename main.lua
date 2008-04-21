@@ -49,8 +49,8 @@ function targetless.scan:OnEvent(eventname, data)
                 oreserial = string.gsub(oreserial, "\r", "")
                 oreserial = string.gsub(oreserial, "\n", "")
                 oreserial = string.gsub(oreserial, "%%", "")
-                targetless.UIroid.add.element.id.title = "" .. objectid
-                targetless.UIroid.add.element.ore.title = oreserial
+                targetless.ui.ore.add.element.id.title = "" .. objectid
+                targetless.ui.ore.add.element.ore.title = oreserial
             else
                 for i,v in ipairs(targetless.RoidList) do
                     if(tonumber(v['id'])==objectid) then
@@ -66,8 +66,8 @@ function targetless.scan:OnEvent(eventname, data)
 end
 
 function targetless.confirmRoid()
-    if(targetless.UIroid.add.element.id.title ~= "" and 
-       targetless.UIroid.add.element.ore.title ~= "") then
+    if(targetless.ui.ore.add.element.id.title ~= "" and 
+       targetless.ui.ore.add.element.ore.title ~= "") then
         if(#targetless.RoidList >= 50) then
             print("\127ff77ffList reached max for sector (50), to remove roids type /targetless roids\127o")
             return
@@ -76,8 +76,8 @@ function targetless.confirmRoid()
             targetless.Lists.mode="Ore" 
             targetless.Lists:update()
         end
-        targetless.UIroid.add.dlg:show()
-        iup.Refresh(targetless.UIroid.add.dlg)
+        targetless.ui.ore.add.dlg:show()
+        iup.Refresh(targetless.ui.ore.add.dlg)
     else
         print("\127ff77ffYou need to scan a roid before you can add it!\127o")
     end
@@ -103,7 +103,7 @@ function targetless.usercmd(cmd)
     if cmd == nil then targetless.printinfo()
     elseif cmd[1] == "config" then targetless.UIconfig.open() 
     elseif cmd[1] == "credits" then targetless.UIcredits.open()
-    elseif cmd[1] == "roids" then targetless.UIroid.open()
+    elseif cmd[1] == "roids" then targetless.ui.ore.open()
     else targetless.printinfo() end
 end
 
