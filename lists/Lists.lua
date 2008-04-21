@@ -102,7 +102,7 @@ end
 function targetless.Lists:getiupplayerlist()
     local iupplayerlist = iup.vbox{}
     for i,v in ipairs(targetless.PlayerList) do
-        if(#targetless.PinnedList+i > targetless.var.listmax) then return end
+        if(#targetless.PinnedList+i > targetless.var.listmax) then return iupplayerlist end
         local iupbox
         local playerlabel
         local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
@@ -131,7 +131,7 @@ function targetless.Lists:getiuproidlist()
     -- regenerate iups 
     local iuproidlist = iup.vbox{}
     for i,v in ipairs(targetless.RoidList) do
-        if(#targetless.PinnedList+i > targetless.var.listmax) then return end
+        if(#targetless.PinnedList+i > targetless.var.listmax) then return iuproidlist end
         local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, size=30,alignment="ACENTER" }
         local objecttype,objectid = radar.GetRadarSelectionID()
         if(objectid and v["id"] == ""..objectid) then

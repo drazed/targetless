@@ -24,49 +24,60 @@ function targetless.func.settarget(number)
 end
 
 function targetless.func.targetnext()
-    if targetless.Lists.mode ~= ("Ore" or "none") then
-        if targetless.var.targetnum >= #(targetless.PlayerList) or targetless.var.targetnum >= targetless.var.listmax then
-            targetless.var.targetnum = 1 
-        else targetless.var.targetnum = targetless.var.targetnum + 1 end
-        local player = targetless.PlayerList[targetless.var.targetnum]
+    if targetless.var.targetnum >= targetless.var.listmax or
+       (targetless.Lists.mode == "Ore" and targetless.var.targetnum >= #targetless.PinnedList+#targetless.RoidList) or
+       (targetless.Lists.mode ~= ("Ore" or "none") and targetless.var.targetnum >= #targetless.PinnedList+#targetless.PlayerList)
+    then targetless.var.targetnum = 1
+    else targetless.var.targetnum = targetless.var.targetnum + 1 end
+
+    if(#targetless.PinnedList >= targetless.var.targetnum) then
+        local player = targetless.PinnedList[targetless.var.targetnum]
         if player then 
             player:target() 
         end
     else
-        if targetless.var.targetnum >= #(targetless.RoidList) or targetless.var.targetnum >= targetless.var.listmax then
-            targetless.var.targetnum = 1 
-        else targetless.var.targetnum = targetless.var.targetnum + 1 end
-        local roid = targetless.RoidList[targetless.var.targetnum]
-        if roid then
-            roid:target()
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            local player = targetless.PlayerList[targetless.var.targetnum-#targetless.PinnedList]
+            if player then 
+                player:target() 
+            end
+        elseif targetless.Lists.mode == "Ore" then
+            local roid = targetless.RoidList[targetless.var.targetnum-#targetless.PinnedList]
+            if roid then
+                roid:target()
+            end
         end
     end
 end
 
 function targetless.func.targetprev()
-    if targetless.Lists.mode ~= ("Ore" or "none") then
-        if targetless.var.targetnum <= 1 then
-            if #(targetless.PlayerList) <= targetless.var.listmax then
-                targetless.var.targetnum = #(targetless.PlayerList)
-            else
-                targetless.var.targetnum = targetless.var.listmax 
-            end
-        else targetless.var.targetnum = targetless.var.targetnum - 1 end
-        local player = targetless.PlayerList[targetless.var.targetnum]
+    if targetless.var.targetnum <= 1 then
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            targetless.var.targetnum = #targetless.PinnedList+#targetless.PlayerList
+        elseif targetless.Lists.mode == "Ore" then
+            targetless.var.targetnum = #targetless.PinnedList+#targetless.RoidList
+        end
+        if targetless.var.targetnum >= targetless.var.listmax then
+            targetless.var.targetnum = targetless.var.listmax 
+        end
+    else targetless.var.targetnum = targetless.var.targetnum - 1 end
+
+    if(#targetless.PinnedList >= targetless.var.targetnum) then
+        local player = targetless.PinnedList[targetless.var.targetnum]
         if player then 
-            player:target()
+            player:target() 
         end
     else
-        if targetless.var.targetnum <= 1 then
-            if #(targetless.RoidList) <= targetless.var.listmax then
-                targetless.var.targetnum = #(targetless.RoidList)
-            else
-                targetless.var.targetnum = targetless.var.listmax 
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            local player = targetless.PlayerList[targetless.var.targetnum-#targetless.PinnedList]
+            if player then 
+                player:target()
             end
-        else targetless.var.targetnum = targetless.var.targetnum - 1 end
-        local roid = targetless.RoidList[targetless.var.targetnum]
-        if roid then
-            roid:target()
+        else
+            local roid = targetless.RoidList[targetless.var.targetnum-#targetless.PinnedList]
+            if roid then
+                roid:target()
+            end
         end
     end
 end
