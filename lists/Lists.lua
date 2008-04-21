@@ -1,8 +1,11 @@
+dofile('lists/PinnedList.lua')
 dofile('lists/PlayerList.lua')
 dofile('lists/RoidList.lua')
 targetless.Lists = {}
 targetless.Lists.mode = "All"
 targetless.Lists.iup = nil
+targetless.Lists.pinned = {}
+targetless.Lists.pinnednew = {}
 
 function targetless.Lists:switch()
     if(self.mode == "PvP") then self.mode = "Cap"
@@ -12,6 +15,17 @@ function targetless.Lists:switch()
     elseif(self.mode == "Ore") then  self.mode = "none" 
     else self.mode = "PvP" end
     self:update()
+end
+
+function targetless.Lists:pin()
+    local ttype,tid = radar.GetRadarSelectionID()
+    if(tid and ttype) then
+        if(self.pinnednew[tid] == 1) then
+            self.pinnednew[tid] = 0 
+        else
+            self.pinnednew[tid] = 1 
+        end
+    end
 end
 
 function targetless.Lists:getiuptotals()
@@ -58,33 +72,57 @@ function targetless.Lists:getiuptotals()
         return iupbox
 end
 
+function targetless.Lists:getiuppinnedlist()
+    local iuppinnedlist = iup.vbox{}
+    for i,v in ipairs(targetless.PinnedList) do
+        local iupbox
+        local pinnedlabel
+        local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
+        if v["name"] == HUD.targetname.title then
+            v.fontcolor = "255 255 255"
+            numlabel.fgcolor = "255 255 255"
+            numlabel.font = Font.H1
+        end
+        if(v["npc"] == "YES") then
+            pinnedlabel = v:getiup(targetless.var.layout.npc)
+        else
+            pinnedlabel = v:getiup(targetless.var.layout.pc)
+        end
+        iupbox = iup.hbox
+        {
+            numlabel,
+            pinnedlabel
+        }
+        v["label"] = iupbox
+        iup.Append(iuppinnedlist, v["label"])
+    end
+    return iuppinnedlist
+end
+
 function targetless.Lists:getiupplayerlist()
     local iupplayerlist = iup.vbox{}
     for i,v in ipairs(targetless.PlayerList) do
-        if(i <= targetless.var.listmax) then
-            local iupbox
-            local playerlabel
-            local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
-            if v["name"] == HUD.targetname.title then
-                v.fontcolor = "255 255 255"
-                numlabel.fgcolor = "255 255 255"
-                numlabel.font = Font.H1
-            end
-            if(v["npc"] == "YES") then
-                playerlabel = v:getiup(targetless.var.layout.npc)
-            else
-                playerlabel = v:getiup(targetless.var.layout.pc)
-            end
-            iupbox = iup.hbox
-            {
-                numlabel,
-                playerlabel
-            }
-            v["label"] = iupbox
-            iup.Append(iupplayerlist, v["label"])
-            --iup.Map(v["label"])
-            i = i + 1
+        if(#targetless.PinnedList+i > targetless.var.listmax) then return end
+        local iupbox
+        local playerlabel
+        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
+        if v["name"] == HUD.targetname.title then
+            v.fontcolor = "255 255 255"
+            numlabel.fgcolor = "255 255 255"
+            numlabel.font = Font.H1
         end
+        if(v["npc"] == "YES") then
+            playerlabel = v:getiup(targetless.var.layout.npc)
+        else
+            playerlabel = v:getiup(targetless.var.layout.pc)
+        end
+        iupbox = iup.hbox
+        {
+            numlabel,
+            playerlabel,
+        }
+        v["label"] = iupbox
+        iup.Append(iupplayerlist, v["label"])
     end
     return iupplayerlist
 end
@@ -93,8 +131,8 @@ function targetless.Lists:getiuproidlist()
     -- regenerate iups 
     local iuproidlist = iup.vbox{}
     for i,v in ipairs(targetless.RoidList) do
-        if(i>targetless.var.listmax) then return end
-        local numlabel = iup.label {title = "" .. i, size=30,alignment="ACENTER" }
+        if(#targetless.PinnedList+i > targetless.var.listmax) then return end
+        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, size=30,alignment="ACENTER" }
         local objecttype,objectid = radar.GetRadarSelectionID()
         if(objectid and v["id"] == ""..objectid) then
             numlabel.fgcolor="255 255 255"
@@ -121,10 +159,17 @@ end
 -- Add ship with id to the appropriate list
 function targetless.Lists:addship(id)
     local name = ""..GetPlayerName(id)
-    --if GetGuildTag(id) ~= "" then name = "[" .. GetGuildTag(id) .. "] " end
     local ship = GetPrimaryShipNameOfPlayer(id)
     if not (id and name and ship) then return end
     if(id == GetCharacterID()) then return end
+
+    local pinid = GetPrimaryShipIDOfPlayer(id) 
+    if(self.pinned[pinid]==1 ) then
+        targetless.PinnedList:add(id)
+        self.pinnednew[pinid] = 1 
+        return
+    end
+
     local npc = (string.sub(name, 1, string.len("*")) == "*") 
     if not npc then
         self.pvpcount = self.pvpcount + 1
@@ -170,16 +215,25 @@ function targetless.Lists:update()
             targetless.Lists.iup = nil
         end
 
+        targetless.PinnedList:clear()
         targetless.PlayerList:clear()
         self.pvpcount = 0
         self.capcount = 0
         self.bombcount = 0
         self.allcount = 0
+        self.pinned = self.pinnednew
+        self.pinnednew = {}
         ForEachPlayer(function (id)
             self:addship(id)
         end)
         local iuptotals = self:getiuptotals()
-
+        local iuppinned = self:getiuppinnedlist()
+        local iuppinnedframe
+        if(#targetless.PinnedList>0) then 
+            iuppinnedframe = iup.hudrightframe{iuppinned}
+        else
+            iuppinnedframe = iup.vbox{}
+        end
         local iuplist
         if self.mode == "Ore" then 
             iuplist = self:getiuproidlist()
@@ -195,6 +249,7 @@ function targetless.Lists:update()
                 iup.hudrightframe {
                     iuptotals,
                 },
+                iuppinnedframe,
                 iup.hudrightframe {
                     iup.zbox{
                         iup.hbox{iup.fill{}},
@@ -205,9 +260,6 @@ function targetless.Lists:update()
                 gap="4",
             },
         }
-
---        if targetless.var.listpage ~= "roid" then targetless.PlayerList:refresh()
---        else targetless.RoidList:refresh() end
 
         iup.Append(targetless.var.iuplists, self.iup)
         iup.Map(iup.GetDialog(self.iup))

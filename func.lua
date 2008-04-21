@@ -6,13 +6,19 @@
 targetless.func = {}
 
 function targetless.func.settarget(number)
-    if targetless.Lists.mode ~= ("Ore" or "none") then
-        if targetless.PlayerList[tonumber(number)] ~= nil then
-            targetless.PlayerList[tonumber(number)]:target()
+    if(#targetless.PinnedList >= number) then
+        if targetless.PinnedList[tonumber(number)] ~= nil then
+            targetless.PinnedList[tonumber(number)]:target()
         end
     else
-        if targetless.RoidList[tonumber(number)] ~= nil then
-            targetless.RoidList[tonumber(number)]:target()
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            if targetless.PlayerList[tonumber(number)-#targetless.PinnedList] ~= nil then
+                targetless.PlayerList[tonumber(number)-#targetless.PinnedList]:target()
+            end
+        else
+            if targetless.RoidList[tonumber(number)-#targetless.PinnedList] ~= nil then
+                targetless.RoidList[tonumber(number)-#targetless.PinnedList]:target()
+            end
         end
     end
 end
