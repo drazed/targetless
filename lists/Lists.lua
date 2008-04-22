@@ -26,6 +26,7 @@ function targetless.Lists:pin()
             self.pinnednew[tid] = 1 
         end
     end
+    self:update()
 end
 
 function targetless.Lists:getiuptotals()
