@@ -163,13 +163,6 @@ function targetless.Lists:addship(id)
     if not (id and name and ship) then return end
     if(id == GetCharacterID()) then return end
 
-    local pinid = GetPrimaryShipIDOfPlayer(id) 
-    if(self.pinned[pinid]==1 ) then
-        targetless.PinnedList:add(id)
-        self.pinnednew[pinid] = 1 
-        return
-    end
-
     local npc = (string.sub(name, 1, string.len("*")) == "*") 
     if not npc then
         self.pvpcount = self.pvpcount + 1
@@ -189,8 +182,14 @@ function targetless.Lists:addship(id)
     end
     if cap then self.capcount = self.capcount + 1 end
     if bomb then self.bombcount = self.bombcount + 1 end
-
     self.allcount = self.allcount + 1
+    local pinid = GetPrimaryShipIDOfPlayer(id) 
+    if(self.pinned[pinid]==1 ) then
+        targetless.PinnedList:add(id)
+        self.pinnednew[pinid] = 1 
+        return
+    end
+
 
     if(self.mode == ("Ore" or "none")) then return
     elseif(self.mode == "PvP") then 
@@ -200,6 +199,8 @@ function targetless.Lists:addship(id)
     elseif(self.mode == "Bomb") then
         if not bomb then return end
     end
+
+
 
     targetless.PlayerList:add(id)
 end
