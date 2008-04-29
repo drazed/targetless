@@ -78,7 +78,7 @@ function targetless.Lists:getiuppinnedlist()
     for i,v in ipairs(targetless.PinnedList) do
         local iupbox
         local pinnedlabel
-        local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
+        local numlabel = iup.label {title = "" .. i, fgcolor="150 150 150", font = targetless.var.font, size=22, alignment="ACENTER" }
         if v["name"] == HUD.targetname.title then
             v.fontcolor = "255 255 255"
             numlabel.fgcolor = "255 255 255"
@@ -106,7 +106,7 @@ function targetless.Lists:getiupplayerlist()
         if(#targetless.PinnedList+i > targetless.var.listmax) then return iupplayerlist end
         local iupbox
         local playerlabel
-        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, fgcolor="150 150 150", font = targetless.var.font, size=25, alignment="ACENTER" }
+        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, fgcolor="150 150 150", font = targetless.var.font, size=22, alignment="ACENTER" }
         if v["name"] == HUD.targetname.title then
             v.fontcolor = "255 255 255"
             numlabel.fgcolor = "255 255 255"
@@ -133,7 +133,7 @@ function targetless.Lists:getiuproidlist()
     local iuproidlist = iup.vbox{}
     for i,v in ipairs(targetless.RoidList) do
         if(#targetless.PinnedList+i > targetless.var.listmax) then return iuproidlist end
-        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, size=30,alignment="ACENTER" }
+        local numlabel = iup.label {title = "" .. #targetless.PinnedList+i, size=22,alignment="ACENTER" }
         local objecttype,objectid = radar.GetRadarSelectionID()
         if(objectid and v["id"] == ""..objectid) then
             numlabel.fgcolor="255 255 255"

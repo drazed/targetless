@@ -198,7 +198,7 @@ function targetless.appendiups()
         iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
         iup.Append(iup.GetParent(HUD.locationtext), missionup)
         --iup.Append(HUD.targetless, targetless.var.PlayerData)
-        iup.Append(HUD.plugins, targetless.var.PlayerData)
+        iup.Append(HUD.pluginlayer, targetless.var.PlayerData)
 --[[
     else 
         local listplace = iup.vbox { iup.fill { size=20}, targetless.var.PlayerData }

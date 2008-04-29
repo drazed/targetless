@@ -58,23 +58,23 @@ function targetless.Player:new(charid)
             iuplabel = iup.fill { size="10" }
         elseif(tag == "health") then
             local health = tonumber(self["health"])
-            local iupbar = iup.label { title="", size= math.floor(health/2.5).."x10" }
+            local iupbar = iup.label { title="", size= math.floor(health/3).."x10" }
             if(self["health"] >= 66) then iupbar.fgcolor="0 125 0"
             elseif(self["health"] > 33) then iupbar.fgcolor="150 125 0"
             elseif(self["health"] <= 33) then iupbar.fgcolor="150 0 0" end
-            iupbar.image=targetless.var.IMAGE_DIR .. "health.png"
-            iuplabel.title = tostring(self["health"] .. "%")
+            iupbar.image=targetless.var.IMAGE_DIR.."health.png"
+            iuplabel.title = tostring(self["health"].."%")
             local iupbox = iup.hbox
             {
                 iup.hbox
                 {
                     iupbar,
-                    size = "44"
+                    size = "36"
                 },
                 iup.hbox 
                 {
                     iuplabel,
-                    margin = "-37"
+                    margin = "-32"
                 }
             }
             return iupbox 
@@ -87,7 +87,7 @@ function targetless.Player:new(charid)
                 iuplabel.title = iuplabel.title .. "(" .. targetless.var.factions[self["faction"]] .. ")" 
             end
         elseif(tag == "distance") then
-            iuplabel.title = "  " .. tostring(self["distance"]) .. "m "
+            iuplabel.title = " " .. tostring(self["distance"]) .. "m "
             iuplabel.size = "50"
         elseif(tag == "ship") then
             iuplabel.title = self["ship"]
