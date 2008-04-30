@@ -80,7 +80,9 @@ function targetless.Player:new(charid)
             return iupbox 
         elseif(tag == "name") then
             local name = self["name"]
-            if(#name > 32) then name = name:sub(1,30).."..." end
+            local trim = math.floor(gkinterface.GetXResolution()/40)
+            if(#name > trim+2) then name = name:sub(1,trim).."..." end
+
             iuplabel.title = name
             iuplabel.fgcolor=FactionColor_RGB[self["faction"]] 
             if(self["faction"] > 3) then 

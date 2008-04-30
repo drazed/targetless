@@ -160,22 +160,6 @@ function targetless.appendiups()
             },
             HUD.targetframe,
             targetless.var.iuplists,
-            --[[
-            iup.vbox {
-                --  targetless.var.iupself,
-                iup.hudrightframe {
-                    targetless.var.iuptotals,
-                },
-                iup.hudrightframe {
-                    iup.zbox{
-                        targetless.var.iupplayers,
-                        targetless.var.iuproids,
-                        all="YES",
-                    },
-                },
-                gap="4",
-            },
-            ]]--
             expand="VERTICAL",
             margin="4x4",
             gap="4",
