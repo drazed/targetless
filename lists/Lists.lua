@@ -5,7 +5,6 @@ targetless.Lists = {}
 targetless.Lists.mode = "All"
 targetless.Lists.iup = nil
 targetless.Lists.pinned = {}
-targetless.Lists.pinnednew = {}
 
 function targetless.Lists:switch()
     if(self.mode == "PvP") then self.mode = "Cap"
@@ -20,10 +19,10 @@ end
 function targetless.Lists:pin()
     local ttype,tid = radar.GetRadarSelectionID()
     if(tid and ttype) then
-        if(self.pinnednew[tid] == 1) then
-            self.pinnednew[tid] = 0 
+        if(self.pinned[tid] == 1) then
+            self.pinned[tid] = 0 
         else
-            self.pinnednew[tid] = 1 
+            self.pinned[tid] = 1 
         end
     end
     self:update()
@@ -187,7 +186,6 @@ function targetless.Lists:addship(id)
     local pinid = GetPrimaryShipIDOfPlayer(id) 
     if(self.pinned[pinid]==1 ) then
         targetless.PinnedList:add(id)
-        self.pinnednew[pinid] = 1 
         return
     end
 
@@ -306,8 +304,6 @@ function targetless.Lists:update()
         self.capcount = 0
         self.bombcount = 0
         self.allcount = 0
-        self.pinned = self.pinnednew
-        self.pinnednew = {}
         ForEachPlayer(function (id)
             self:addship(id)
         end)

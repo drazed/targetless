@@ -83,6 +83,7 @@ function targetless.confirmRoid()
 end
 
 function targetless.sectorupdate:OnEvent(eventname, ...)
+    targetless.Lists.pinned = {}
     targetless.RoidList:updatesector(GetCurrentSectorid())
 end
 
