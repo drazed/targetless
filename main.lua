@@ -13,13 +13,12 @@ targetless.sectorupdate = {}
 targetless.scan = {}
 
 dofile('lists/Lists.lua')
-dofile('func.lua')
 dofile('var.lua')
 dofile('ui/ui.lua')
 
 function targetless.start:OnEvent(eventname, ...)
     targetless.var.state = true
-    targetless.func.refresh()
+    targetless.Lists.refresh()
 end
 
 function targetless.stop:OnEvent(eventname, ...)
@@ -92,11 +91,7 @@ function targetless.update:OnEvent(eventname, ...)
 end
 
 function targetless.printinfo()
-    print("\127ffffff" .. "Target List " .. targetless.var.version .. " loaded... \nCommands: "..
-        "\n\t\127ff77ff/addroid\127o --> add roid to list"..
-        "\n\t\127ff77ff/targetless roids\127o --> roid list manager"..
-        "\n\t\127ff77ff/targetless config\127o --> program settings"..
-        "\n\t\127ff77ff/targetless credits\127o --> program credits" .. "\127o")
+    print("\127ffffff" .. "Target List " .. targetless.var.version .. " loaded...")
 end
 
 function targetless.usercmd(cmd)
@@ -112,7 +107,7 @@ function targetless.init:OnEvent(eventname, ...)
     targetless.RoidList.sector = GetCurrentSectorid()
 
     targetless.appendiups()
-    if GetStationLocation() == nil then targetless.func.refresh() end
+    if GetStationLocation() == nil then targetless.Lists.refresh() end
     targetless.RoidList:updatesector(GetCurrentSectorid())
     UnregisterEvent(self, "PLAYER_ENTERED_GAME")
 
@@ -192,20 +187,20 @@ function targetless.appendiups()
 end
 
 RegisterEvent(targetless.init, "PLAYER_ENTERED_GAME")
-RegisterUserCommand("targetselect", function(data, args) targetless.func.settarget(args[1]) end) -- set binds using aliases for any target number
+RegisterUserCommand("targetselect", function(data, args) targetless.Lists.settarget(args[1]) end) -- set binds using aliases for any target number
 RegisterUserCommand("addroid",function() targetless.confirmRoid() end)
 RegisterUserCommand("lsswitch",function() targetless.Lists:switch() end)
-RegisterUserCommand("nextLS",function() targetless.func.targetnext() end)
-RegisterUserCommand("prevLS",function() targetless.func.targetprev() end)
+RegisterUserCommand("nextLS",function() targetless.Lists.targetnext() end)
+RegisterUserCommand("prevLS",function() targetless.Lists.targetprev() end)
 RegisterUserCommand("pin",function() targetless.Lists:pin() end)
-RegisterUserCommand("selecttarget1",function() targetless.func.settarget(1) end)
-RegisterUserCommand("selecttarget2",function() targetless.func.settarget(2) end)
-RegisterUserCommand("selecttarget3",function() targetless.func.settarget(3) end)
-RegisterUserCommand("selecttarget4",function() targetless.func.settarget(4) end)
-RegisterUserCommand("selecttarget5",function() targetless.func.settarget(5) end)
-RegisterUserCommand("selecttarget6",function() targetless.func.settarget(6) end)
-RegisterUserCommand("selecttarget7",function() targetless.func.settarget(7) end)
-RegisterUserCommand("selecttarget8",function() targetless.func.settarget(8) end)
-RegisterUserCommand("selecttarget9",function() targetless.func.settarget(9) end)
-RegisterUserCommand("selecttarget10",function() targetless.func.settarget(10) end)
+RegisterUserCommand("selecttarget1",function() targetless.Lists.settarget(1) end)
+RegisterUserCommand("selecttarget2",function() targetless.Lists.settarget(2) end)
+RegisterUserCommand("selecttarget3",function() targetless.Lists.settarget(3) end)
+RegisterUserCommand("selecttarget4",function() targetless.Lists.settarget(4) end)
+RegisterUserCommand("selecttarget5",function() targetless.Lists.settarget(5) end)
+RegisterUserCommand("selecttarget6",function() targetless.Lists.settarget(6) end)
+RegisterUserCommand("selecttarget7",function() targetless.Lists.settarget(7) end)
+RegisterUserCommand("selecttarget8",function() targetless.Lists.settarget(8) end)
+RegisterUserCommand("selecttarget9",function() targetless.Lists.settarget(9) end)
+RegisterUserCommand("selecttarget10",function() targetless.Lists.settarget(10) end)
 RegisterUserCommand("targetless",function(data, args) targetless.usercmd(args) end)

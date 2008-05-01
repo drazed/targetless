@@ -10,12 +10,23 @@ targetless.var.state = true
 targetless.var.updatelock = false
 targetless.var.targetnum = 0
 targetless.var.listpage = "target"
+targetless.var.trim = math.floor(gkinterface.GetXResolution()/40)
+
+function targetless.var.getfont(fontstr)
+    if fontstr == "Font.H5" then
+        return Font.H5
+    elseif fontstr == "Font.H6" then
+        return Font.H6
+    else
+        return Font.Tiny
+    end
+end
 
 -- config settings
 targetless.var.refreshDelay = tonumber(gkini.ReadString("targetless", "refresh", "1500"))
 targetless.var.place = gkini.ReadString("targetless", "place", "right")
 targetless.var.sortBy = gkini.ReadString("targetless", "sort", "distance")
-targetless.var.font = targetless.func.getfont(gkini.ReadString("targetless", "font", "Font.H6"))
+targetless.var.font = targetless.var.getfont(gkini.ReadString("targetless", "font", "Font.H6"))
 targetless.var.showRoid = gkini.ReadString("targetless", "roidtab", "ON")
 targetless.var.showtls = gkini.ReadString("targetless", "showtls", "ON")
 targetless.var.showself = gkini.ReadString("targetless", "self", "ON")

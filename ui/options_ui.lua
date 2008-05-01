@@ -92,13 +92,13 @@ function targetless.ui.options.element.applybutton:action()
     else targetless.var.sortBy = "faction" end
 
     if targetless.ui.options.element.fontlist.value == "1" then 
-        targetless.var.font = targetless.func.getfont("Font.H5")
+        targetless.var.font = targetless.var.getfont("Font.H5")
         gkini.WriteString("targetless", "font", "Font.H5")
     elseif targetless.ui.options.element.fontlist.value == "2" then 
-        targetless.var.font = targetless.func.getfont("Font.H6")
+        targetless.var.font = targetless.var.getfont("Font.H6")
         gkini.WriteString("targetless", "font", "Font.H6")
     else 
-        targetless.var.font = targetless.func.getfont("Font.Tiny")
+        targetless.var.font = targetless.var.getfont("Font.Tiny")
         gkini.WriteString("targetless", "font", "Font.Tiny")
     end
     gkini.WriteString("targetless", "sort", targetless.var.sortBy)

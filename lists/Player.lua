@@ -80,8 +80,7 @@ function targetless.Player:new(charid)
             return iupbox 
         elseif(tag == "name") then
             local name = self["name"]
-            local trim = math.floor(gkinterface.GetXResolution()/40)
-            if(#name > trim+2) then name = name:sub(1,trim).."..." end
+            if(#name > targetless.var.trim+2) then name = name:sub(1,targetless.var.trim).."..." end
 
             iuplabel.title = name
             iuplabel.fgcolor=FactionColor_RGB[self["faction"]] 
@@ -92,7 +91,9 @@ function targetless.Player:new(charid)
             iuplabel.title = " " .. tostring(self["distance"]) .. "m "
             iuplabel.size = "50"
         elseif(tag == "ship") then
-            iuplabel.title = self["ship"]
+            local ship = self["ship"]
+            if(#ship > targetless.var.trim+2) then ship = ship:sub(1,targetless.var.trim).."..." end
+            iuplabel.title = ship
         elseif(tag == "istand") then
             iuplabel.title = targetless.Player.standingstr(self["istand"])
             iuplabel.fgcolor = FactionColor_RGB[1]
@@ -132,7 +133,7 @@ function targetless.Player:new(charid)
 
     function player:target()
         radar.SetRadarSelection(GetPlayerNodeID(self["id"]), GetPrimaryShipIDOfPlayer(self["id"]))
-        targetless.func.refresh()
+        targetless.Lists.refresh()
     end
 
     return player

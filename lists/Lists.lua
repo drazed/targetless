@@ -206,6 +206,89 @@ function targetless.Lists:addship(id)
     targetless.PlayerList:add(id)
 end
 
+function targetless.Lists.targetprev()
+    if targetless.var.targetnum <= 1 then
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            targetless.var.targetnum = #targetless.PinnedList+#targetless.PlayerList
+        elseif targetless.Lists.mode == "Ore" then
+            targetless.var.targetnum = #targetless.PinnedList+#targetless.RoidList
+        end
+        if targetless.var.targetnum >= targetless.var.listmax then
+            targetless.var.targetnum = targetless.var.listmax
+        end
+    else targetless.var.targetnum = targetless.var.targetnum - 1 end
+
+    if(#targetless.PinnedList >= targetless.var.targetnum) then
+        local player = targetless.PinnedList[targetless.var.targetnum]
+        if player then
+            player:target()
+        end
+    else
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            local player = targetless.PlayerList[targetless.var.targetnum-#targetless.PinnedList]
+            if player then
+                player:target()
+            end
+        else
+            local roid = targetless.RoidList[targetless.var.targetnum-#targetless.PinnedList]
+            if roid then
+                roid:target()
+            end
+        end
+    end
+end
+function targetless.Lists.targetnext()
+    if targetless.var.targetnum >= targetless.var.listmax or
+       (targetless.Lists.mode == "Ore" and targetless.var.targetnum >= #targetless.PinnedList+#targetless.RoidList) or
+       (targetless.Lists.mode ~= ("Ore" or "none") and targetless.var.targetnum >= #targetless.PinnedList+#targetless.PlayerList)
+    then targetless.var.targetnum = 1
+    else targetless.var.targetnum = targetless.var.targetnum + 1 end
+
+    if(#targetless.PinnedList >= targetless.var.targetnum) then
+        local player = targetless.PinnedList[targetless.var.targetnum]
+        if player then
+            player:target()
+        end
+    else
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            local player = targetless.PlayerList[targetless.var.targetnum-#targetless.PinnedList]
+            if player then
+                player:target()
+            end
+        elseif targetless.Lists.mode == "Ore" then
+            local roid = targetless.RoidList[targetless.var.targetnum-#targetless.PinnedList]
+            if roid then
+                roid:target()
+            end
+        end
+    end
+end
+function targetless.Lists.settarget(number)
+    if(#targetless.PinnedList >= number) then
+        if targetless.PinnedList[tonumber(number)] ~= nil then
+            targetless.PinnedList[tonumber(number)]:target()
+        end
+    else
+        if targetless.Lists.mode ~= ("Ore" or "none") then
+            if targetless.PlayerList[tonumber(number)-#targetless.PinnedList] ~= nil then
+                targetless.PlayerList[tonumber(number)-#targetless.PinnedList]:target()
+            end
+        else
+            if targetless.RoidList[tonumber(number)-#targetless.PinnedList] ~= nil then
+                targetless.RoidList[tonumber(number)-#targetless.PinnedList]:target()
+            end
+        end
+    end
+end
+
+function targetless.Lists.refresh()
+    if targetless.var.state == true then
+        targetless.Lists:update()
+        targetless.var.timer:SetTimeout(targetless.var.refreshDelay, function() targetless.Lists.refresh() end)
+    end
+end
+
+
 function targetless.Lists:update()
     if HUD.hud_toggled_off then return end
     if targetless.var.updatelock == false then
