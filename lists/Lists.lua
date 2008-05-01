@@ -17,12 +17,12 @@ function targetless.Lists:switch()
 end
 
 function targetless.Lists:pin()
-    local ttype,tid = radar.GetRadarSelectionID()
-    if(tid and ttype) then
-        if(self.pinned[tid] == 1) then
-            self.pinned[tid] = 0 
+    local id = RequestTargetStats()
+    if(id) then
+        if(self.pinned[id] == 1) then
+            self.pinned[id] = 0 
         else
-            self.pinned[tid] = 1 
+            self.pinned[id] = 1 
         end
     end
     self:update()
@@ -183,8 +183,7 @@ function targetless.Lists:addship(id)
     if cap then self.capcount = self.capcount + 1 end
     if bomb then self.bombcount = self.bombcount + 1 end
     self.allcount = self.allcount + 1
-    local pinid = GetPrimaryShipIDOfPlayer(id) 
-    if(self.pinned[pinid]==1 ) then
+    if(self.pinned[id]==1 ) then
         targetless.PinnedList:add(id)
         return
     end
