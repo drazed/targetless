@@ -133,7 +133,7 @@ function targetless.Player:new(charid)
 
     function player:target()
         radar.SetRadarSelection(GetPlayerNodeID(self["id"]), GetPrimaryShipIDOfPlayer(self["id"]))
-        targetless.Lists.refresh()
+        targetless.Lists:refresh()
     end
 
     return player
