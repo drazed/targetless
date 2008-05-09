@@ -83,7 +83,7 @@ function targetless.confirmRoid()
 end
 
 function targetless.sectorupdate:OnEvent(eventname, ...)
-    targetless.Lists.pinned = {}
+    --targetless.Lists.pinned = {}
     targetless.RoidList:updatesector(GetCurrentSectorid())
 end
 
@@ -128,24 +128,27 @@ function targetless.appendiups()
 
 --    targetless.var.iupself = iup.vbox {}
     targetless.var.sectortotals = nil
---    targetless.var.iuptotals = iup.vbox {}
---    targetless.var.iupplayers = iup.vbox {}
---    targetless.var.iuproids = iup.vbox {}
     targetless.var.iuplists = iup.vbox {}
 
     local hudinfo = iup.GetParent(HUD.selfinfoframe)
+    local addons = iup.GetParent(HUD.addonframe)
+    local schat = iup.GetParent(HUD.secondarychatarea)
     iup.Detach(hudinfo)
-    --iup.Append(HUD.alladdonlist, hudinfo)
+    iup.Detach(addons)
+    iup.Detach(schat)
 
     targetless.var.PlayerData = iup.hbox
     {
         iup.vbox{
             iup.hbox{iup.fill{size="THREEQUARTER",},},
-            iup.fill{size="%40",},
+            iup.fill{size="%20",},
             iup.hbox{
-                iup.fill{size="10"},
+                iup.fill{size="5"},
                 hudinfo,
+                addons,
+                schat,
                 iup.fill{},
+                gap="4",
             },
         },
         iup.vbox
@@ -162,7 +165,6 @@ function targetless.appendiups()
         },
     }
 
-    local schat = HUD.secondarychatarea
     local bsinfo = iup.GetParent(HUD.BSinfo.enemylabel)
     targetless.var.PlayerData.expand = "NO"
 --[[
@@ -173,10 +175,7 @@ function targetless.appendiups()
     elseif(targetless.var.place == "right") then
 ]]--
         iup.Detach(bsinfo)
-        iup.Detach(schat)
-        local missionup = iup.vbox { iup.fill { size=20}, schat }
         iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
-        iup.Append(iup.GetParent(HUD.locationtext), missionup)
         --iup.Append(HUD.targetless, targetless.var.PlayerData)
         iup.Append(HUD.pluginlayer, targetless.var.PlayerData)
 --[[
