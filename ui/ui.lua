@@ -200,10 +200,9 @@ function targetless.ui.show()
 	targetless.ui.tabs:OnShow()
 end
 
-local buttons = {}
-for i=1,3 do buttons[i] = iup.stationbutton{title="TargetLess", action=targetless.ui.show, expand="HORIZONTAL", hotkey=iup.K_exclam} end
-
-iup.Append(PDADialog[1][1][2], buttons[1])
-iup.Append(StationDialog[1][1][2], buttons[2])
-iup.Append(CapShipDialog[1][1][2], buttons[3])
-
+local stationbutton = iup.stationbutton{title="TargetLess", action=targetless.ui.show, expand="HORIZONTAL", hotkey=iup.K_exclam}
+local pdabutton = iup.stationbutton{title="TargetLess", action=targetless.ui.show, expand="HORIZONTAL", hotkey=iup.K_exclam}
+local capbutton = iup.stationbutton{title="TargetLess", action=targetless.ui.show, expand="HORIZONTAL", hotkey=iup.K_exclam}
+iup.Append(iup.GetParent(StationLaunchButton), stationbutton)
+iup.Append(iup.GetParent(PDACloseButton), pdabutton)
+iup.Append(iup.GetParent(CapShipLaunchButton), capbutton)
