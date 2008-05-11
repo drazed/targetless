@@ -95,11 +95,8 @@ function targetless.printinfo()
 end
 
 function targetless.usercmd(cmd)
-    if cmd == nil then targetless.printinfo()
-    elseif cmd[1] == "config" then targetless.UIconfig.open() 
-    elseif cmd[1] == "credits" then targetless.UIcredits.open()
-    elseif cmd[1] == "roids" then targetless.ui.ore.open()
-    else targetless.printinfo() end
+    targetless.printinfo() 
+    targetless.ui.show()
 end
 
 function targetless.init:OnEvent(eventname, ...)
