@@ -31,7 +31,7 @@ function targetless.re_attach:OnEvent(eventname, ...)
     targetless.PlayerList.self = nil
     while(targetless.PlayerList[1]) do table.remove(targetless.PlayerList, 1) end
     while(targetless.RoidList[1]) do table.remove(targetless.RoidList, 1) end
-
+    targetless.Lists.iup = nil
     targetless.appendiups()
     if GetStationLocation() == nil then targetless.Lists:update() end
     targetless.RoidList:updatesector(GetCurrentSectorid())
@@ -167,23 +167,9 @@ function targetless.appendiups()
 
     local bsinfo = iup.GetParent(HUD.BSinfo.enemylabel)
     targetless.var.PlayerData.expand = "NO"
---[[
-    if(targetless.var.place == "left") then
-        iup.Detach(bsinfo)
-        iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
-        iup.Append(HUD.secondarychatarea, targetless.var.PlayerData)
-    elseif(targetless.var.place == "right") then
-]]--
-        iup.Detach(bsinfo)
-        iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
-        --iup.Append(HUD.targetless, targetless.var.PlayerData)
-        iup.Append(HUD.pluginlayer, targetless.var.PlayerData)
---[[
-    else 
-        local listplace = iup.vbox { iup.fill { size=20}, targetless.var.PlayerData }
-        iup.Append(iup.GetParent(HUD.locationtext), listplace)
-    end
-]]--
+    iup.Detach(bsinfo)
+    iup.Append(iup.GetParent(iup.GetParent(HUD.locationtext)), bsinfo)
+    iup.Append(HUD.pluginlayer, targetless.var.PlayerData)
 end
 
 RegisterEvent(targetless.init, "PLAYER_ENTERED_GAME")

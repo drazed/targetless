@@ -10,7 +10,7 @@ targetless.var.state = true
 targetless.var.updatelock = false
 targetless.var.targetnum = 0
 targetless.var.listpage = "target"
-targetless.var.trim = math.floor((gkinterface.GetXResolution()/4 - 75)/8)-(10*(2*FontScale-1))
+targetless.var.trim = math.floor((gkinterface.GetXResolution()/4 - 75)/10)/FontScale
 
 function targetless.var.getfont(fontstr)
     if fontstr == "Font.H5" then
