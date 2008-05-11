@@ -19,7 +19,7 @@ end
 
 function targetless.ui.ore.loadlist(sid)
     -- load this sectors list
-    if(sid and sid ~= 0) then
+    if(sid) then
         local i = 1 
         while(targetless.ui.ore.element.rlist[i] ~= nil) do
             targetless.ui.ore.element.rlist[i] = nil
@@ -39,6 +39,7 @@ function targetless.ui.ore.loadlist(sid)
             end
         end
 
+        targetless.ui.ore.element.rlist.value = 0
         for i,v in ipairs(sectorroids) do
             targetless.ui.ore.element.rlist[i] = v
             targetless.ui.ore.element.rlist.value = i 
@@ -100,7 +101,10 @@ function targetless.ui.ore.main:OnShow()
     targetless.ui.ore.sectorname2id = {}
     local sectors = {}
     string.gsub(gkini.ReadString("roidls", "sectors", ""),"<(.-)>", function(a) table.insert(sectors,a) end)
-    for i,sid in ipairs(sectors) do 
+    iup.SetAttribute(targetless.ui.ore.element.slist,1,"none") 
+    targetless.ui.ore.sectorname2id["none"] = "0"
+    for j,sid in ipairs(sectors) do 
+        local i = j + 1
         iup.SetAttribute(targetless.ui.ore.element.slist,i,ShortLocationStr(tonumber(sid))) 
         if(tonumber(sid)==GetCurrentSectorid()) then 
             targetless.ui.ore.element.slist.value = i 
@@ -119,6 +123,7 @@ end
 
 function targetless.ui.ore.element.editbutton:action()
     local roidstr = targetless.ui.ore.element.rlist[targetless.ui.ore.element.rlist.value]
+    if not roidstr then return end
     local roid =  {}
     string.gsub(roidstr,"<(.-)>", function(a) table.insert(roid, a) end)
     targetless.ui.ore.edit.element.id.title = roid[1]
