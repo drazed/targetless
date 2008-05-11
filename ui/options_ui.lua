@@ -5,6 +5,9 @@ targetless.ui.options.element.slist = iup.list { "distance", "health", "faction"
 targetless.ui.options.element.fontlist = iup.list { "large", "regular", "small"; dropdown="YES" }
 targetless.ui.options.element.refreshtext = iup.text { value = "" .. targetless.var.refreshDelay/1000, size = "30x" }
 targetless.ui.options.element.maxlsize = iup.text { value = "" .. targetless.var.listmax, size = "30x" }
+targetless.ui.options.element.pinframe = iup.stationtoggle{title="Frame Pinned Targets", value=targetless.var.pinframe}
+targetless.ui.options.element.listframe = iup.stationtoggle{title="Frame Lists", value=targetless.var.listframe}
+
 targetless.ui.options.element.applybutton = iup.stationbutton { title = "Apply" }
 targetless.ui.options.element.cancelbutton = iup.stationbutton { title = "Reset" }
 targetless.ui.options.mainbox = iup.vbox
@@ -42,6 +45,20 @@ targetless.ui.options.mainbox = iup.vbox
         iup.label { title = "\127ddddddList Max (targets):\127o", expand = "HORIZONTAL" },
         iup.fill {},
         targetless.ui.options.element.maxlsize,
+        iup.fill { size = "10" }
+    },
+    iup.fill{ size = "10"},
+    iup.hbox
+    {
+        iup.fill { size = "10" },
+        targetless.ui.options.element.pinframe,
+        iup.fill { size = "10" }
+    },
+    iup.fill{ size = "10"},
+    iup.hbox
+    {
+        iup.fill { size = "10" },
+        targetless.ui.options.element.listframe,
         iup.fill { size = "10" }
     },
     iup.fill{},
@@ -115,6 +132,10 @@ function targetless.ui.options.element.applybutton:action()
         targetless.var.refreshDelay = refreshT*1000 
         gkini.WriteString("targetless", "refresh", refreshT*1000)
     end
+    targetless.var.pinframe = targetless.ui.options.element.pinframe.value
+    targetless.var.listframe = targetless.ui.options.element.listframe.value
+    gkini.WriteString("targetless", "pinframe", ""..targetless.var.pinframe)
+    gkini.WriteString("targetless", "listframe", ""..targetless.var.listframe)
     targetless.Lists:update()
     targetless.RoidList:updatesector(GetCurrentSectorid())
 end

@@ -83,7 +83,6 @@ function targetless.confirmRoid()
 end
 
 function targetless.sectorupdate:OnEvent(eventname, ...)
-    --targetless.Lists.pinned = {}
     targetless.RoidList:updatesector(GetCurrentSectorid())
 end
 
@@ -126,7 +125,6 @@ function targetless.appendiups()
     iup.Detach(HUD.licensewatchframe)
     iup.Detach(HUD.missiontimerframe)
 
---    targetless.var.iupself = iup.vbox {}
     targetless.var.sectortotals = nil
     targetless.var.iuplists = iup.vbox {}
 
@@ -141,7 +139,7 @@ function targetless.appendiups()
     {
         iup.vbox{
             iup.hbox{iup.fill{size="THREEQUARTER",},},
-            iup.fill{size="%20",},
+            iup.fill{size="%21",},
             iup.hbox{
                 iup.fill{size="5"},
                 hudinfo,

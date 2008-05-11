@@ -5,12 +5,12 @@
 
 targetless.var = {}
 targetless.var.timer = Timer()
-targetless.var.version = "1.6.a1"
+targetless.var.version = "1.6.beta1"
 targetless.var.state = true
 targetless.var.updatelock = false
 targetless.var.targetnum = 0
 targetless.var.listpage = "target"
-targetless.var.trim = math.floor((gkinterface.GetXResolution()/4 - 75)/10)/FontScale
+targetless.var.trim = math.floor((gkinterface.GetXResolution()/4 - 88)/4)/(FontScale+1)
 
 function targetless.var.getfont(fontstr)
     if fontstr == "Font.H5" then
@@ -32,6 +32,8 @@ targetless.var.showtls = gkini.ReadString("targetless", "showtls", "ON")
 targetless.var.showself = gkini.ReadString("targetless", "self", "ON")
 targetless.var.listmax = tonumber(gkini.ReadString("targetless", "listmax", "10"))
 targetless.var.lswidth = tonumber(gkini.ReadString("targetless", "hudwidth", "300"))
+targetless.var.pinframe = gkini.ReadString("targetless", "pinframe", "ON")
+targetless.var.listframe = gkini.ReadString("targetless", "listframe", "ON")
 
 -- layout format strings
 targetless.var.layout = {}
