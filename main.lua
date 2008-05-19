@@ -9,6 +9,7 @@ targetless.stop = {}
 targetless.init = {}
 targetless.re_attach = {}
 targetless.update = {}
+targetless.targetchange = {}
 targetless.sectorupdate = {}
 targetless.scan = {}
 
@@ -38,6 +39,7 @@ function targetless.re_attach:OnEvent(eventname, ...)
 end
 
 function targetless.scan:OnEvent(eventname, data)
+    targetless.var.scanlock = true -- this is to avoid duplicate ore printout
     local objecttype,objectid = radar.GetRadarSelectionID()
     if(data ~= nil and data ~= "" and objecttype == 2) then
             local ores = {} 
@@ -88,6 +90,26 @@ end
 
 function targetless.update:OnEvent(eventname, ...)
     targetless.Lists:update()
+    local objecttype,objectid = radar.GetRadarSelectionID()
+    if(tonumber(objecttype) == 2) then 
+        targetless.var.timer:SetTimeout(500, targetless.targetchange)
+    end
+end
+
+function targetless.targetchange()
+    local objecttype,objectid = radar.GetRadarSelectionID()
+    if(targetless.var.scanlock == false) then
+        for i,v in ipairs(targetless.RoidList) do
+            if(tonumber(v['id'])==objectid) then
+                local ores = {}
+                string.gsub(v["ore"],"'(.-)'", function(a) table.insert(ores,a) end)
+                local string = ""
+                for i,v in ipairs(ores) do string = string..v.."\n" end
+                HUD.scaninfo.title = HUD.scaninfo.title..string
+            end
+        end
+    end
+    targetless.var.scanlock = false
 end
 
 function targetless.printinfo()
@@ -132,11 +154,21 @@ function targetless.appendiups()
     iup.Detach(addons)
     iup.Detach(schat)
 
+    local licensewatchframe 
+    if(HUD.visibility.license=="YES" or HUD.visibility.missiontimers=="YES") then
+        licensewatchframe = iup.zbox{
+            HUD.licensewatchframe,
+            HUD.missiontimerframe,
+        }
+    else
+        licensewatchframe = iup.hbox{}
+    end
+
     targetless.var.PlayerData = iup.hbox
     {
         iup.vbox{
             iup.hbox{iup.fill{size="THREEQUARTER",},},
-            iup.fill{size="%21",},
+            iup.fill{size="%22",},
             iup.hbox{
                 iup.fill{size="5"},
                 hudinfo,
@@ -149,8 +181,7 @@ function targetless.appendiups()
         iup.vbox
         {
             iup.zbox{
-                HUD.licensewatchframe,
-                HUD.missiontimerframe,
+                licensewatchframe,
             },
             HUD.targetframe,
             targetless.var.iuplists,

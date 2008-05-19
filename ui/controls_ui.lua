@@ -266,7 +266,7 @@ function targetless.ui.controls.custom.open()
         title = title.."\t/bind "..targetless.ui.controls.element.pinkey.value.." pin\n"
     end
     if(targetless.ui.controls.element.pagekey.value ~= "") then
-        title = title.."\t/bind "..targetless.ui.controls.element.pagekey.value.." lswitch\n"
+        title = title.."\t/bind "..targetless.ui.controls.element.pagekey.value.." lsswitch\n"
     end
     if(targetless.ui.controls.element.nextkey.value ~= "") then
         title = title.."\t/bind "..targetless.ui.controls.element.nextkey.value.." nextLS\n"

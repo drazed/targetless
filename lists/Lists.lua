@@ -5,6 +5,7 @@ targetless.Lists = {}
 targetless.Lists.mode = "All"
 targetless.Lists.iup = nil
 targetless.Lists.pinned = {}
+targetless.Lists.timer = Timer()
 
 function targetless.Lists:switch()
     if(self.mode == "PvP") then self.mode = "Cap"
@@ -281,10 +282,9 @@ end
 function targetless.Lists:refresh()
     if targetless.var.state == true then
         self:update()
-        targetless.var.timer:SetTimeout(targetless.var.refreshDelay, function() self:refresh() end)
+        targetless.Lists.timer:SetTimeout(targetless.var.refreshDelay, function() self:refresh() end)
     end
 end
-
 
 function targetless.Lists:update()
     if HUD.hud_toggled_off then return end

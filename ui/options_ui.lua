@@ -2,7 +2,7 @@
 targetless.ui.options = {}
 targetless.ui.options.element = {}
 targetless.ui.options.element.slist = iup.list { "distance", "health", "faction"; dropdown="YES" }
-targetless.ui.options.element.fontlist = iup.list { "large", "regular", "small"; dropdown="YES" }
+targetless.ui.options.element.fontlist = iup.list { "regular", "small"; dropdown="YES" }
 targetless.ui.options.element.refreshtext = iup.text { value = "" .. targetless.var.refreshDelay/1000, size = "30x" }
 targetless.ui.options.element.maxlsize = iup.text { value = "" .. targetless.var.listmax, size = "30x" }
 targetless.ui.options.element.pinframe = iup.stationtoggle{title="Frame Pinned Targets", value=targetless.var.pinframe}
@@ -94,9 +94,9 @@ function targetless.ui.options.main:OnShow()
     elseif targetless.var.sortBy == "health" then  targetless.ui.options.element.slist.value = 2 
     else targetless.ui.options.element.slist.value = 3 end
 
-    if targetless.var.font == Font.H5 then targetless.ui.options.element.fontlist.value = 1
-    elseif targetless.var.font == Font.H6 then targetless.ui.options.element.fontlist.value = 2
-    else targetless.ui.options.element.fontlist.value = 3 end
+--    if targetless.var.font == Font.H5 then targetless.ui.options.element.fontlist.value = 1
+    if targetless.var.font == Font.H6 then targetless.ui.options.element.fontlist.value = 1
+    else targetless.ui.options.element.fontlist.value = 2 end
 end
 
 function targetless.ui.options.main:OnHide() end
@@ -109,9 +109,6 @@ function targetless.ui.options.element.applybutton:action()
     else targetless.var.sortBy = "faction" end
 
     if targetless.ui.options.element.fontlist.value == "1" then 
-        targetless.var.font = targetless.var.getfont("Font.H5")
-        gkini.WriteString("targetless", "font", "Font.H5")
-    elseif targetless.ui.options.element.fontlist.value == "2" then 
         targetless.var.font = targetless.var.getfont("Font.H6")
         gkini.WriteString("targetless", "font", "Font.H6")
     else 

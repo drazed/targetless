@@ -5,12 +5,14 @@
 
 targetless.var = {}
 targetless.var.timer = Timer()
-targetless.var.version = "1.6.beta1"
+targetless.var.version = "1.6.beta2"
 targetless.var.state = true
 targetless.var.updatelock = false
+targetless.var.scanlock = false
 targetless.var.targetnum = 0
 targetless.var.listpage = "target"
 targetless.var.trim = math.floor((gkinterface.GetXResolution()/4 - 88)/4)/(FontScale+1)
+targetless.var.trimore = math.floor((gkinterface.GetXResolution()/4-30)/55)
 
 function targetless.var.getfont(fontstr)
     if fontstr == "Font.H5" then

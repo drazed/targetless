@@ -54,15 +54,19 @@ function targetless.Roid:new()
             string.gsub(self["ore"],"'(.-)'", function(a) table.insert(ores,a) end)
             local iupbox = iup.hbox { }
             for i,v in ipairs(ores) do
-                local oreframe = iup.hbox {
-                    iup.label {
-                        title=""..targetless.Roid.colorore(v), 
-                        fgcolor=self.fontcolor, 
-                        font=targetless.var.font
-                    },
-                    size="55",
-                }
-                iup.Append(iupbox, oreframe)
+                if(i < targetless.var.trimore) then
+                    local oreframe = iup.hbox {
+                        iup.label {
+                            title=""..targetless.Roid.colorore(v), 
+                            fgcolor=self.fontcolor,
+                            font=targetless.var.font,
+                        },
+                        size="55",
+                    }
+                    iup.Append(iupbox, oreframe)
+                else
+                    iup.Append(iupbox, iup.label{title=".."})
+                end
             end
             return iupbox
         end

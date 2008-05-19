@@ -80,7 +80,11 @@ function targetless.Player:new(charid)
             return iupbox 
         elseif(tag == "name") then
             local name = self["name"]
-            if(#name > targetless.var.trim+2) then name = name:sub(1,targetless.var.trim).."..." end
+            local trim = targetless.var.trim
+            if(self["faction"] > 3) then 
+                trim = trim - targetless.var.factions[self["faction"]]:len()
+            end
+            if(#name > trim+2) then name = name:sub(1,trim).."..." end
 
             iuplabel.title = name
             iuplabel.fgcolor=FactionColor_RGB[self["faction"]] 
