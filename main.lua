@@ -180,10 +180,15 @@ function targetless.appendiups()
         },
         iup.vbox
         {
-            iup.zbox{
-                licensewatchframe,
+            iup.hbox {
+                iup.fill{},
+                iup.vbox{
+                    iup.zbox{
+                        licensewatchframe,
+                    },
+                    HUD.targetframe,
+                },
             },
-            HUD.targetframe,
             targetless.var.iuplists,
             expand="VERTICAL",
             margin="4x4",

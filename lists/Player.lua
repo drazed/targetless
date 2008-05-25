@@ -21,7 +21,7 @@ function targetless.Player:new(charid)
     player.fontcolor = "150 150 150"
     function player:getiup(format)
         if(format == nil) then 
-            format = "{<health><name><fill><lstand>}{<distance><ship>}"
+            format = "{<health><name><fill>}{<distance><ship><lstand>}"
         end
         local formattbl = {}
         string.gsub(format,"{(.-)}", function(a) table.insert(formattbl, a) end)
@@ -46,7 +46,6 @@ function targetless.Player:new(charid)
             iup.Append(iupbox, iuphbox)
             i = i + 1
         end
-
         return iupbox 
     end
 
@@ -81,10 +80,11 @@ function targetless.Player:new(charid)
         elseif(tag == "name") then
             local name = self["name"]
             local trim = targetless.var.trim
+            if(self["npc"] == "NO") then trim = trim - 6 end
             if(self["faction"] > 3) then 
                 trim = trim - targetless.var.factions[self["faction"]]:len()
             end
-            if(#name > trim+2) then name = name:sub(1,trim).."..." end
+            if(#name > trim+2) then name = name:sub(1,trim)..".." end
 
             iuplabel.title = name
             iuplabel.fgcolor=FactionColor_RGB[self["faction"]] 

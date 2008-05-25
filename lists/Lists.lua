@@ -176,6 +176,8 @@ function targetless.Lists:addship(id)
     local cap = false
     if(string.sub(name, 1, string.len("*Hive Queen")) == "*Hive Queen") then
         cap = true
+    elseif(string.sub(name, 1, string.len("*Leviathan")) == "*Leviathan") then
+        cap = true
     elseif(ship == "Heavy Assault Cruiser") then cap = true
     elseif(ship == "TPG Teradon Frigate") then cap = true
     elseif(ship == "Trident Light Frigate") then cap = true
@@ -282,7 +284,7 @@ end
 function targetless.Lists:refresh()
     if targetless.var.state == true then
         self:update()
-        targetless.Lists.timer:SetTimeout(targetless.var.refreshDelay, function() self:refresh() end)
+        self.timer:SetTimeout(targetless.var.refreshDelay, function() self:refresh() end)
     end
 end
 
