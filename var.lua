@@ -5,7 +5,7 @@
 
 targetless.var = {}
 targetless.var.timer = Timer()
-targetless.var.version = "1.6.beta2"
+targetless.var.version = "1.6.beta4"
 targetless.var.state = true
 targetless.var.updatelock = false
 targetless.var.scanlock = false

@@ -30,12 +30,12 @@ function targetless.Lists:pin()
 end
 
 function targetless.Lists:getiuptotals()
-        local pvplabel = iup.label { title="PvP: "..self.pvpcount, fgcolor="155 155 155",  font=targetless.var.font }
+        local pvplabel = iup.label { title="PvP: "..self.pvpcount-1, fgcolor="155 155 155",  font=targetless.var.font }
         local pvelabel = iup.label { title="PvE: (", fgcolor="155 155 155", font=targetless.var.font }
         local pveblabel = iup.label { title=")", fgcolor="155 155 155", font=targetless.var.font }
         local caplabel = iup.label { title=""..self.capcount, fgcolor="155 155 155",  font=targetless.var.font }
         local bomblabel = iup.label { title=""..self.bombcount, fgcolor="155 155 155",  font=targetless.var.font }
-        local alllabel = iup.label { title=""..self.allcount, fgcolor="155 155 155",  font=targetless.var.font }
+        local alllabel = iup.label { title=""..self.allcount-1, fgcolor="155 155 155",  font=targetless.var.font }
         local orelabel = iup.label { title="Ore: "..targetless.RoidList.roidcount, fgcolor="155 155 155", font=targetless.var.font }
 
         if self.mode ~= "Ore" then 
@@ -161,7 +161,12 @@ end
 function targetless.Lists:addship(id)
     local name = ""..GetPlayerName(id)
     local ship = GetPrimaryShipNameOfPlayer(id)
-    if not (id and name and ship) then return end
+    if not (id and name) then return end
+    if not ship then 
+        self.pvpcount = self.pvpcount + 1 
+        self.allcount = self.allcount + 1
+        return
+    end
     if(id == GetCharacterID()) then return end
 
     local npc = (string.sub(name, 1, string.len("*")) == "*") 
