@@ -1,2 +1,4 @@
-TargetLess removed from git.  New home at http://trac.targetless.com
-If you want a version-controlled copy e-mail (drazed@gmail.com) me a user-pass for git/svn and i'll set you up with an account/info.  I'll get a user-registration setup soon =)
+TargetLess removed from git.  New home at http://targetless.com
+
+If you want a version-controlled copy you can pull directly from public svn via:
+  svn co http://svn.targetless.com/ ./targetless
