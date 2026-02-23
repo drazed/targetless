@@ -339,9 +339,22 @@ function targetless.appendiups()
 
     iup.Append(iup.GetParent(HUD.targetframe), iup.hbox{iup.fill{size="QUARTER"}})
 
+    -- Reset cell list so old widget trees are released before new ones are created.
+    targetless.Controller.shiplist = nil
+
     targetless.Controller:generatetotals()
     targetless.var.iuplists = iup.vbox {}
     targetless.var.selfship = iup.vbox {}
+
+    -- In cell mode, pre-allocate a single set of ship row widgets that are
+    -- mutated in-place each refresh rather than rebuilt.  Pinned targets go
+    -- at the top of the same list, highlighted differently.
+    -- Both containers are always mounted; the inactive one stays empty.
+    targetless.var.celllists = iup.vbox{}
+    if targetless.var.usecells == "ON" then
+        targetless.Controller.shiplist = targetless.CellList:new(targetless.var.listmax)
+        iup.Append(targetless.var.celllists, targetless.Controller.shiplist.iup)
+    end
 
     local licensewatchframe 
     if(HUD.visibility.license=="YES" or HUD.visibility.missiontimers=="YES") then
@@ -421,6 +434,7 @@ function targetless.appendiups()
                 },
                 targetless.var.selfship,
                 targetless.Controller.totals.iup,
+                targetless.var.celllists,
                 targetless.var.iuplists,
                 iup.hbox{iup.fill{size=quarter,},},
                 expand="VERTICAL",

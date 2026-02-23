@@ -1,6 +1,8 @@
 --dofile('lists/PinnedList.lua')
 dofile('lists/Ship.lua')
 dofile('lists/List.lua')
+dofile('lists/iupCell.lua')
+dofile('lists/CellList.lua')
 dofile('lists/RoidList.lua')
 dofile('lists/Buffer.lua')
 targetless.Controller = {}
@@ -11,6 +13,7 @@ targetless.Controller.currentbuffer.pin = targetless.Controller.pin
 targetless.Controller.rebuildbuffer.pin = targetless.Controller.pin
 targetless.Controller.mode = "All"
 targetless.Controller.fstatus = 0
+targetless.Controller.shiplist = nil
 
 function targetless.Controller:switch()
     -- only allow this function if targetless state is enabled/started
@@ -289,6 +292,30 @@ function targetless.Controller:updatetotals()
     self.totals.bomb.title = ""..self.currentbuffer.count.bomb
     self.totals.all.title = ""..self.currentbuffer.count.all
     self.totals.roids.title = ""..targetless.RoidList.roidcount
+end
+
+-- Populate the pre-allocated cell list from the completed buffer.
+-- Pinned targets go first (highlighted), then regular ships.
+-- Called in cell mode at the end of Buffer:step() instead of getiup()+switchbuffers().
+function targetless.Controller:populatecells(buffer)
+    if not targetless.var.state then return end
+    if not self.shiplist then return end
+
+    -- Combine pinned + ships into a single display list.
+    local items = {}
+    local pincount = buffer.pinned and #buffer.pinned or 0
+    for i = 1, pincount do
+        items[#items + 1] = buffer.pinned[i]
+    end
+    local shipcount = buffer.ships and #buffer.ships or 0
+    for i = 1, shipcount do
+        items[#items + 1] = buffer.ships[i]
+    end
+
+    self.shiplist:populate(items, 0, pincount)
+    if targetless.var.PlayerData then
+        iup.Refresh(targetless.var.PlayerData)
+    end
 end
 
 function targetless.Controller:updateself()

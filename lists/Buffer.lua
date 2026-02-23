@@ -68,18 +68,26 @@ function targetless.Buffer:new()
     --
     --]]
     function buffer:step()
+        -- Cell mode is only used for ship display modes, not Ore or none.
+        -- Also requires the cell list to have been created (needs reload after toggle).
+        local use_cells = targetless.var.usecells == "ON"
+            and self.mode ~= "Ore" and self.mode ~= "none"
+            and targetless.Controller.shiplist ~= nil
+
         if targetless.var.state and not self.ready then
             if(#self.shipidbuffer > 0) then
                 self:addship(self.shipidbuffer[1])
                 table.remove(self.shipidbuffer, 1)
             elseif((self.atship < #self.pinned+#self.ships) and (self.atship <= targetless.var.listmax)) then
                 self.atship = self.atship + 1
-                if(self.atship > #self.pinned) then
-                    if(self.atship-#self.pinned <= #self.ships) then
-                        self.ships[self.atship-#self.pinned].label = self.ships[self.atship-#self.pinned]:getiup()
+                if not use_cells then
+                    if(self.atship > #self.pinned) then
+                        if(self.atship-#self.pinned <= #self.ships) then
+                            self.ships[self.atship-#self.pinned].label = self.ships[self.atship-#self.pinned]:getiup()
+                        end
+                    else
+                        self.pinned[self.atship].label = self.pinned[self.atship]:getiup()
                     end
-                else
-                    self.pinned[self.atship].label = self.pinned[self.atship]:getiup()
                 end
             elseif(self.mode == "Ore" and (self.atroid < #self.pinned+#targetless.RoidList) and (self.atroid <= targetless.var.roidmax)) then
                 self.atroid = self.atroid + 1
@@ -95,8 +103,16 @@ function targetless.Buffer:new()
                 targetless.Controller:updatetotals()
                 self.totals = true
             else
-                self.iupobj = self:getiup()
-                self.ready = true 
+                if use_cells then
+                    targetless.Controller:populatecells(self)
+                else
+                    -- Clear cells when falling back to legacy (Ore mode, none, or cells toggled off)
+                    if targetless.Controller.shiplist then
+                        targetless.Controller.shiplist:clear()
+                    end
+                    self.iupobj = self:getiup()
+                end
+                self.ready = true
             end
             if self.rush == true then self:step()
             else self.timer:SetTimeout(self.delay, function() self:step() end)

@@ -54,6 +54,8 @@ targetless.var.pinframe = gkini.ReadString("targetless", "pinframe", "ON")
 targetless.var.listframe = gkini.ReadString("targetless", "listframe", "OFF")
 targetless.var.showore = gkini.ReadString("targetless", "showore", "ON")
 targetless.var.scanall = gkini.ReadString("targetless", "scanall", "ON")
+targetless.var.usecells = gkini.ReadString("targetless", "usecells", "OFF")
+
 targetless.var.autopin = {}
 targetless.var.autopin.damage = gkini.ReadString("targetless", "pindamage", "ON")
 

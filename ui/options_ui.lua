@@ -23,6 +23,8 @@ targetless.ui.options.element.slist = iup.list { "distance", "health", "faction"
 targetless.ui.options.element.flist = iup.list { "smile","wheel","bar"; dropdown="YES" }
 targetless.ui.options.element.basefontsize = iup.text { value = "" .. targetless.var.basefontsize, size = "100x" }
 targetless.ui.options.element.maxlsize = iup.text { value = "" .. targetless.var.listmax, size = "100x" }
+targetless.ui.options.element.usecells = iup.stationtoggle{title="Use Cell-Based Lists (experimental, reload required)", value=targetless.var.usecells}
+
 targetless.ui.options.element.autopin = {}
 targetless.ui.options.element.autopin.damage = iup.stationtoggle{title="auto-pin ships that damage you", value=targetless.var.autopin.damage}
 
@@ -233,6 +235,8 @@ targetless.ui.options.lists.tab = iup.vbox{
     },
     targetless.ui.options.element.autopin.damage,
     iup.fill{size="30"},
+    targetless.ui.options.element.usecells,
+    iup.fill{size="30"},
     iup.vbox{
         targetless.ui.options.element.showpvp,
         targetless.ui.options.element.showpve,
@@ -335,6 +339,7 @@ function targetless.ui.options.main:OnShow()
     end
 
     targetless.ui.options.element.fontslider.posx = (targetless.var.fontscale or 1)*100
+    targetless.ui.options.element.usecells.value = targetless.var.usecells
 end
 
 function targetless.ui.options.main:OnHide() 
@@ -384,7 +389,7 @@ function targetless.ui.options.main:OnHide()
     targetless.var.scanall = targetless.ui.options.element.scanall.value
     targetless.var.autopin.damage = targetless.ui.options.element.autopin.damage.value
     targetless.var.faction = targetless.ui.options.element.flist[targetless.ui.options.element.flist.value]
-    targetless.var.oresort = targetless.ui.options.element.oresort[targetless.ui.options.element.oresort.value]
+    targetless.var.oresort = targetless.ui.options.element.oresort[targetless.ui.options.element.oresort.value] or targetless.var.oresort
     gkini.WriteString("targetless", "pindamage", ""..targetless.var.autopin.damage)
     gkini.WriteString("targetless", "showself", ""..targetless.var.showself)
     gkini.WriteString("targetless", "showselfcenter", ""..targetless.var.showselfcenter)
@@ -395,6 +400,8 @@ function targetless.ui.options.main:OnHide()
     gkini.WriteString("targetless", "scanall", ""..targetless.var.scanall)
     gkini.WriteString("targetless", "factiontype", ""..targetless.var.faction)
     gkini.WriteString("targetless", "oresort", ""..targetless.var.oresort)
+    targetless.var.usecells = targetless.ui.options.element.usecells.value
+    gkini.WriteString("targetless", "usecells", ""..targetless.var.usecells)
 
     targetless.var.huddisplay.showpvp = targetless.ui.options.element.showpvp.value
     targetless.var.huddisplay.showpve = targetless.ui.options.element.showpve.value
