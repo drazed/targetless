@@ -14,6 +14,47 @@ targetless.Controller.rebuildbuffer.pin = targetless.Controller.pin
 targetless.Controller.mode = "All"
 targetless.Controller.fstatus = 0
 targetless.Controller.shiplist = nil
+targetless.Controller.roid_timer = nil
+targetless.Controller.roid_index = 0
+
+-- Independent background timer for roid distance updates.
+-- Runs one roid:updatedistance() per tick, spaced out so a full cycle
+-- takes approximately roidrefresh ms (default 3000ms).
+-- Completely decoupled from the ship buffer cycle to avoid lag.
+function targetless.Controller:startRoidRefresh()
+    if self.roid_timer then return end  -- already running
+    self.roid_timer = Timer()
+    self.roid_index = 0
+    self:roidRefreshStep()
+end
+
+function targetless.Controller:roidRefreshStep()
+    if not targetless.var.state then
+        self.roid_timer = nil
+        return
+    end
+
+    if #targetless.RoidList > 0 then
+        self.roid_index = self.roid_index + 1
+        if self.roid_index > #targetless.RoidList then
+            self.roid_index = 1
+        end
+        targetless.RoidList[self.roid_index]:updatedistance()
+    end
+
+    -- Space updates so one full cycle through all roids takes ~roidrefresh ms.
+    -- Minimum 100ms per update to stay gentle on CPU.
+    local count = math.max(#targetless.RoidList, 1)
+    local interval = math.max(math.floor(targetless.var.roidrefresh / count), 100)
+    self.roid_timer:SetTimeout(interval, function()
+        self:roidRefreshStep()
+    end)
+end
+
+function targetless.Controller:stopRoidRefresh()
+    self.roid_timer = nil
+    self.roid_index = 0
+end
 
 function targetless.Controller:switch()
     -- only allow this function if targetless state is enabled/started
@@ -294,24 +335,83 @@ function targetless.Controller:updatetotals()
     self.totals.roids.title = ""..targetless.RoidList.roidcount
 end
 
+-- Build a formatted ore string for a roid using \127 color codes.
+local function roid_ore_string(roid)
+    local parts = {}
+    local i = 0
+    for k, v in pairs(roid.ore) do
+        if i >= targetless.var.trimore then
+            parts[#parts + 1] = ".."
+            break
+        end
+        parts[#parts + 1] = targetless.Roid.colorore(k) .. ":" .. v .. "%"
+        i = i + 1
+    end
+    return table.concat(parts, " ")
+end
+
+-- Wrap a Roid data object into a cell-compatible item table.
+local function make_roid_item(roid)
+    return {
+        roid     = true,
+        id       = roid.id,
+        ore      = roid.ore,
+        distance = roid.distance or -1,
+        health   = -1,
+        shield   = 0,
+        hostile  = false,
+        npc      = false,
+        cap      = false,
+        ship     = nil,
+        faction  = 0,
+        name     = roid_ore_string(roid),
+        target   = function(self) roid:target() end,
+    }
+end
+
 -- Populate the pre-allocated cell list from the completed buffer.
--- Pinned targets go first (highlighted), then regular ships.
--- Called in cell mode at the end of Buffer:step() instead of getiup()+switchbuffers().
+-- Builds a unified display list: [pinned ships + pinned roids] + [mode items].
+-- Cross-mode pinning: pinned roids show on ship lists, pinned ships show on roid list.
 function targetless.Controller:populatecells(buffer)
     if not targetless.var.state then return end
     if not self.shiplist then return end
 
-    -- Combine pinned + ships into a single display list.
     local items = {}
-    local pincount = buffer.pinned and #buffer.pinned or 0
-    for i = 1, pincount do
+    local pincount = 0
+
+    -- 1. Pinned ships (always shown regardless of mode)
+    local ship_pincount = buffer.pinned and #buffer.pinned or 0
+    for i = 1, ship_pincount do
         items[#items + 1] = buffer.pinned[i]
-    end
-    local shipcount = buffer.ships and #buffer.ships or 0
-    for i = 1, shipcount do
-        items[#items + 1] = buffer.ships[i]
+        pincount = pincount + 1
     end
 
+    -- 2. Pinned roids (always shown regardless of mode)
+    for _, roid in ipairs(targetless.RoidList) do
+        if self.pin["roid:" .. roid.id] == 1 then
+            items[#items + 1] = make_roid_item(roid)
+            pincount = pincount + 1
+        end
+    end
+
+    -- 3. Mode-specific non-pinned items
+    if buffer.mode == "Ore" then
+        -- Ore mode: show non-pinned roids
+        for _, roid in ipairs(targetless.RoidList) do
+            if self.pin["roid:" .. roid.id] ~= 1 then
+                if #items >= targetless.var.listmax then break end
+                items[#items + 1] = make_roid_item(roid)
+            end
+        end
+    elseif buffer.mode ~= "none" then
+        -- Ship modes: show filtered ships
+        local shipcount = buffer.ships and #buffer.ships or 0
+        for i = 1, shipcount do
+            items[#items + 1] = buffer.ships[i]
+        end
+    end
+
+    buffer.items = items
     self.shiplist:populate(items, 0, pincount)
     if targetless.var.PlayerData then
         iup.Refresh(targetless.var.PlayerData)
@@ -445,12 +545,19 @@ function targetless.Controller:pinfunc()
     -- only allow this function if targetless state is enabled/started
     if not targetless.var.state then return end
 
-    local id = RequestTargetStats()
-    if(id) then
-        if(self.pin[id] == 1) then
-            self.pin[id] = 0 
+    -- Detect whether target is a roid (objecttype 2) or a ship.
+    local objecttype, objectid = radar.GetRadarSelectionID()
+    local id
+    if objecttype == 2 then
+        id = "roid:" .. objectid
+    else
+        id = RequestTargetStats()
+    end
+    if id then
+        if self.pin[id] == 1 then
+            self.pin[id] = 0
         else
-            self.pin[id] = 1 
+            self.pin[id] = 1
         end
     end
     self:update()
@@ -471,45 +578,35 @@ end
 
 function targetless.Controller:targetprev()
     local buffer = self.currentbuffer
+    local item_count = buffer.items and #buffer.items or 0
+    if item_count > targetless.var.listmax then item_count = targetless.var.listmax end
+
     if targetless.var.targetnum <= 1 then
-        -- if at first target own a targetable capship wrap to that, otherwise wrap to last element
+        -- if at first target and own a targetable capship, wrap to that
         if targetless.var.targetnum == 1 then
             for k,v in pairs(targetless.var.mycaps) do
                 if v.ship ~= nil then
                     targetless.var.targetnum = 0
                     self:settarget(targetless.var.targetnum)
-                    return -- return immediatly to prevent re-wrapping below 
+                    return
                 end
             end
         end
-
-        if buffer.mode ~= "Ore" and buffer.mode ~= "none" then
-            targetless.var.targetnum = #buffer.pinned+#buffer.ships
-            if targetless.var.targetnum >= targetless.var.listmax then
-                targetless.var.targetnum = targetless.var.listmax
-            end
-
-        elseif buffer.mode == "Ore" then
-            targetless.var.targetnum = #buffer.pinned+#targetless.RoidList
-            if targetless.var.targetnum >= targetless.var.roidmax then
-                targetless.var.targetnum = targetless.var.roidmax
-            end
-        end
-    else targetless.var.targetnum = targetless.var.targetnum - 1 end
+        targetless.var.targetnum = item_count
+    else
+        targetless.var.targetnum = targetless.var.targetnum - 1
+    end
 
     self:settarget(targetless.var.targetnum)
 end
 
 function targetless.Controller:targetnext()
     local buffer = self.currentbuffer
-    if (buffer.mode == "Ore" and
-       (targetless.var.targetnum >= targetless.var.roidmax or
-       targetless.var.targetnum >= #buffer.pinned+#targetless.RoidList)) or
-       (buffer.mode ~= "Ore" and buffer.mode ~= "none" and
-       (targetless.var.targetnum >= targetless.var.listmax or 
-       targetless.var.targetnum >= #buffer.pinned+#buffer.ships))
-    then 
-        -- if your capship is targettable wrap to that, otherwise wrap back to 1st
+    local item_count = buffer.items and #buffer.items or 0
+    if item_count > targetless.var.listmax then item_count = targetless.var.listmax end
+
+    if targetless.var.targetnum >= item_count then
+        -- wrap: try capship first, otherwise back to 1
         targetless.var.targetnum = 1
         for k,v in pairs(targetless.var.mycaps) do
             if v.ship ~= nil then
@@ -517,7 +614,9 @@ function targetless.Controller:targetnext()
                 break
             end
         end
-    else targetless.var.targetnum = targetless.var.targetnum + 1 end
+    else
+        targetless.var.targetnum = targetless.var.targetnum + 1
+    end
 
     self:settarget(targetless.var.targetnum)
 end
@@ -543,24 +642,13 @@ function targetless.Controller:settarget(number)
         end
     end
 
+    -- Use unified items list from last populatecells call
     local buffer = self.currentbuffer
-    if(#buffer.pinned >= number) then
-        if buffer.pinned[tonumber(number)] ~= nil then
-            buffer.pinned[tonumber(number)]:target()
-        end
-    else
-        if buffer.mode ~= "Ore" and buffer.mode ~= "none" then
-            if buffer.ships[tonumber(number)-#buffer.pinned] ~= nil then
-                buffer.ships[tonumber(number)-#buffer.pinned]:target()
-            end
-        else
-            if targetless.RoidList[tonumber(number)-#buffer.pinned] ~= nil then
-                targetless.RoidList[tonumber(number)-#buffer.pinned]:target()
-            end
-        end
+    local item = buffer.items and buffer.items[tonumber(number)]
+    if item then
+        item:target()
     end
 
-    -- store this target number in the rollover list
     targetless.var.targetnum = number
 end
 
@@ -569,16 +657,6 @@ function targetless.Controller:switchbuffers()
         local tmpbuffer = self.currentbuffer
         self.currentbuffer = self.rebuildbuffer
         self.rebuildbuffer = tmpbuffer
-        if self.rebuildbuffer.iupobj ~= nil then
-            iup.Detach(self.rebuildbuffer.iupobj)
-            iup.Destroy(self.rebuildbuffer.iupobj)
-            self.rebuildbuffer.iupobj = nil
-        end
-        if self.currentbuffer.iupobj ~= nil then
-            iup.Append(targetless.var.iuplists, self.currentbuffer.iupobj)
-            iup.Map(iup.GetDialog(self.currentbuffer.iupobj))
-            iup.Refresh(targetless.var.PlayerData)
-        end
         self.rebuildbuffer:reset()
     end
 end

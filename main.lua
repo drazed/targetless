@@ -55,16 +55,19 @@ function targetless.start:OnEvent(eventname, ...)
     targetless.scancaps()
     targetless.var.state = true
     targetless.Controller:update()
+    targetless.Controller:startRoidRefresh()
 end
 
 function targetless.stop:OnEvent(eventname, ...)
     if(GetCurrentStationType() ~= 1) then
         targetless.var.state = false
+        targetless.Controller:stopRoidRefresh()
     end
 end
 
 function targetless.logout:OnEvent(eventname, ...)
     targetless.var.state = false
+    targetless.Controller:stopRoidRefresh()
     ReloadInterface()
 end
 
@@ -94,10 +97,11 @@ function targetless.re_attach()
     targetless.Controller.selfinfo = nil
     targetless.Controller.centerHUD = nil
     targetless.Controller.totals.iup = nil
-    targetless.Controller.currentbuffer.iupobj = nil
     targetless.appendiups()
     if GetStationLocation() == nil then targetless.Controller:update() end
     targetless.RoidList:load(GetCurrentSectorid())
+    targetless.Controller:stopRoidRefresh()
+    targetless.Controller:startRoidRefresh()
 end
 
 function targetless.strsplit(pattern,text)
@@ -228,8 +232,10 @@ function targetless.sectorupdate:OnEvent(eventname, ...)
     -- refresh mycaps
     targetless.scancaps()
 
+    targetless.Controller:stopRoidRefresh()
     targetless.RoidList:save()
     targetless.RoidList:load(GetCurrentSectorid())
+    targetless.Controller:startRoidRefresh()
 
     -- re-aquire target after short delay, so missles can lock
     local timer = Timer()
@@ -305,11 +311,12 @@ function targetless.init:OnEvent(eventname, ...)
     targetless.RoidList.sector = GetCurrentSectorid()
     targetless.appendiups()
     targetless.RoidList:load(GetCurrentSectorid())
-    if GetStationLocation() == nil then 
+    if GetStationLocation() == nil then
         -- scan for your capships
         targetless.scancaps()
         targetless.var.state = true
-        targetless.Controller:update() 
+        targetless.Controller:update()
+        targetless.Controller:startRoidRefresh()
     end
     UnregisterEvent(self, "PLAYER_ENTERED_GAME")
     UnregisterEvent(HUD, "TARGET_CHANGED")
@@ -343,18 +350,13 @@ function targetless.appendiups()
     targetless.Controller.shiplist = nil
 
     targetless.Controller:generatetotals()
-    targetless.var.iuplists = iup.vbox {}
     targetless.var.selfship = iup.vbox {}
 
-    -- In cell mode, pre-allocate a single set of ship row widgets that are
-    -- mutated in-place each refresh rather than rebuilt.  Pinned targets go
-    -- at the top of the same list, highlighted differently.
-    -- Both containers are always mounted; the inactive one stays empty.
+    -- Pre-allocate cell widgets that are mutated in-place each refresh.
+    -- Pinned targets go at the top in a framed container.
     targetless.var.celllists = iup.vbox{}
-    if targetless.var.usecells == "ON" then
-        targetless.Controller.shiplist = targetless.CellList:new(targetless.var.listmax)
-        iup.Append(targetless.var.celllists, targetless.Controller.shiplist.iup)
-    end
+    targetless.Controller.shiplist = targetless.CellList:new(targetless.var.listmax)
+    iup.Append(targetless.var.celllists, targetless.Controller.shiplist.iup)
 
     local licensewatchframe 
     if(HUD.visibility.license=="YES" or HUD.visibility.missiontimers=="YES") then
@@ -435,7 +437,6 @@ function targetless.appendiups()
                 targetless.var.selfship,
                 targetless.Controller.totals.iup,
                 targetless.var.celllists,
-                targetless.var.iuplists,
                 iup.hbox{iup.fill{size=quarter,},},
                 expand="VERTICAL",
                 margin="4x4",

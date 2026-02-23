@@ -18,7 +18,6 @@ targetless.RoidList.sortorder = {
 targetless.RoidList.scannum = 1
 targetless.RoidList.sector = 0
 targetless.RoidList.roidcount = 0
-targetless.RoidList.refreshmultiple = 0
 targetless.RoidList.allroids = {}
 
 function targetless.RoidList:add(id, note, ore)
@@ -100,43 +99,3 @@ function targetless.RoidList:ids()
     return roidids
 end
 
-function targetless.RoidList:getiup(offset)
-    self.refreshmultiple = self.refreshmultiple + 1
-    if self.refreshmultiple > math.ceil(targetless.var.roidrefresh/targetless.var.refreshDelay) then
-        self.refreshmultiple = 0
-    end
-    local iuproidlist = iup.vbox{}
-    targetless.api.radarlock = true
-    for i,v in ipairs(targetless.RoidList) do
-        if(offset+i > targetless.var.roidmax) then 
-            targetless.api.radarlock = false
-            return iuproidlist 
-        end
-        local numlabel = iup.label {title = "" .. offset+i, size=30,alignment="ACENTER" }
-        local objecttype,objectid = radar.GetRadarSelectionID()
-        if(objectid and tonumber(v.id) == objectid) then
-            numlabel.fgcolor="255 255 255"
-            numlabel.font = Font.H1
-            v.fontcolor = "255 255 255"
-        else
-            numlabel.fgcolor="155 155 155"
-            numlabel.font = targetless.var.font
-            v.fontcolor = "155 155 155"
-        end
-        if self.refreshmultiple == 1 then v:updatedistance() end
-        local roidlabel = v:getiup()
-
-        local iupbox = iup.vbox{
-            iup.hbox
-            {
-                numlabel,
-                roidlabel,
-                alignment="ACENTER",
-            },
-        }
-        v.label = iupbox
-        iup.Append(iuproidlist, v.label)
-    end
-    targetless.api.radarlock = false
-    return iuproidlist
-end

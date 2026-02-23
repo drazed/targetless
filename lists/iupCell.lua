@@ -1,6 +1,6 @@
--- Pre-allocated cell for ship list entries.
+-- Pre-allocated cell for ship and roid list entries.
 -- cell:create(index)      builds IUP widget tree once, stores mutable refs
--- cell:update(ship, i)    mutates stored widget refs in-place (no new widgets)
+-- cell:update(item, i)    mutates stored widget refs in-place (no new widgets)
 -- cell:clear()            hides the cell row (root.visible = "NO")
 
 targetless.Cell = {}
@@ -135,11 +135,56 @@ function targetless.Cell:new()
         }
     end
 
-    -- Mutate all widget properties from a Ship data object.
+    -- Mutate all widget properties from a Ship or Roid data object.
     -- index is the display number shown in numlabel and used for target selection.
-    -- is_pinned: true if this entry is a pinned target (shown with gold highlight).
-    function cell:update(ship, index, is_pinned)
+    -- is_pinned: true if this entry is a pinned target (shown in framed container).
+    function cell:update(item, index, is_pinned)
         self.root.visible = "YES"
+
+        -- Roid rendering: ore text only, no bars or standings.
+        if item.roid then
+            local objecttype, objectid = radar.GetRadarSelectionID()
+            local is_target = (objecttype == 2 and tonumber(item.id) == objectid)
+            if is_target then
+                targetless.var.targetnum = index
+                self.numlabel.fgcolor = "255 255 255"
+            else
+                self.numlabel.fgcolor = "155 155 155"
+            end
+            self.numlabel.title = "#" .. index
+
+            -- Hide ship-specific widgets
+            self.shieldbar.visible  = "NO"
+            self.healthbar.visible  = "NO"
+            self.healthpct.title    = ""
+            self.pcstands.visible   = "NO"
+            self.shiptype.title     = ""
+
+            -- Hide lstand
+            local use_images = (targetless.var.faction == "smile" or targetless.var.faction == "wheel")
+            if use_images then
+                self.lstand.title = ""
+                if self.lstand.image ~= nil then self.lstand.image = "" end
+            else
+                self.lstand.value = 0
+            end
+
+            -- Ore text in name label
+            local fc = is_target and "255 255 255" or "155 155 155"
+            self.name.title   = item.name   -- pre-formatted ore string with \127 color codes
+            self.name.fgcolor = fc
+
+            -- Distance
+            if item.distance and item.distance > 0 then
+                self.distance.title = " " .. tostring(item.distance) .. "m "
+            else
+                self.distance.title = ""
+            end
+            return
+        end
+
+        -- Ship rendering below.
+        local ship = item
 
         -- Target highlight (color only, no font scaling to avoid stretching rows)
         local is_target = (ship.name == HUD.targetname.title

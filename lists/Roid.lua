@@ -32,9 +32,13 @@ function targetless.Roid:new()
     end
 
     function roid:updatedistance()
-        -- TODO this is hacky, since we have to change targets make sure a new update doesn't get forced
-        local oldlockvalue = targetless.var.lock
+        -- Lock both flags: var.lock blocks Controller:update() rush builds,
+        -- api.radarlock blocks targetchange() IUP widget rebuilds.
+        -- Both are triggered by TARGET_CHANGED events from the radar changes below.
+        local oldlock = targetless.var.lock
+        local oldradarlock = targetless.api.radarlock
         targetless.var.lock = true
+        targetless.api.radarlock = true
 
         local distance = ""
         local endtype,endid = radar.GetRadarSelectionID()
@@ -48,8 +52,8 @@ function targetless.Roid:new()
             self.distance = -1
         end
         radar.SetRadarSelection(endtype, endid)
-        targetless.var.lock = oldlockvalue
-        -- end TODO
+        targetless.var.lock = oldlock
+        targetless.api.radarlock = oldradarlock
     end
 
     function roid:getlabelbytag(tag)
