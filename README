@@ -1,4 +1,36 @@
-TargetLess removed from git.  New home at http://targetless.com
+Vendetta Online TargetLess Plugin: v1.0
 
-If you want a version-controlled copy you can pull directly from public svn via:
-  svn co http://svn.targetless.com/ ./targetless
+To install:
+
+    Mac: locate your Vendetta application, right click (or control click), and choose the 'Show Package Contents' option.
+    Windows: locate and open your Vendetta directory, usually C:\Program Files\Vendetta Online\ 
+    Linux: locate and open your vendetta directory, usually ~/.vendetta/
+
+If there isn't a plugins folder there already, create one. Unzip the plugin into the plugins folder, or if you already have it uncompressed put the folder containing the fils in plugins (remember to put the whole folder in, not the contents of the folder).
+
+CLI:
+    /targetless --> options config and quick-select binds setup.
+
+Author: Adrian (drazed) Zakrzewski
+contact: drazed@gmail.com
+
+Special Thanks:    
+--          Scuba Steve 9.0 and his Pirates Toolkit for providing me with 
+--          wonderful sample code.
+--
+--          BlackNet, Omega0, Eonis, FireMage, Nautrogus and a bunch of others 
+--          in IRC land for their l33t lua coding skills.  If I missed any of
+--          you remind me, I have a terrible memory =9
+--
+--          Draugath for droid touch codes. 
+--
+--          Chocoleteer for help debugging and fixing bugs.
+--
+--          The members of Coalition of Itan for helping test the plugin before 
+--          I actually got it to work right.
+--
+--          Most of all I'd like to thank the VO devs for making this all 
+--          possible.  Thanks John, Ray, Andy, and Michael.
+--
+--          If I missed anyone at all please point it out =)
+

@@ -1,0 +1,44 @@
+--[[
+--
+-- This file is going to be the home of some api functionality/events/locks/etc...
+--
+--]]
+targetless.api = {}
+
+--[[
+--
+-- This lock applies to the scanning through radar objects using
+-- `radar.SetRadarSelectionID()` function.
+-- If you are going to use this function in your plugin and don't want targetless
+-- picking up the radar target changed events you should set this variable to true,
+-- make sure to set it back to false once you're done.
+--
+-- Usage example:
+--   * the most likely case where you'd want to use this is to prevent targetless from doing
+--   * stuff while you're passively scanning through roids/ships via the radar table.
+--
+-- {{{
+-- 
+--  if targetless then targetless.api.radarlock = true end
+--  -- do stuff like scan through radar targets or whatnot, none of this should break
+--  -- re-targetting or hud labels during your scans
+--  if targetless then targetless.api.radarlock = false end
+--
+-- }}}
+--
+--   * additionally you might want to use this lock yourself to prevent running code while
+--   * targetless or other plugins that use this lock scan through radar.
+--
+-- {{{
+--
+--  -- this checks that targetless exists and that radarlock is not set
+--  if(targetless and not targetless.api.radarlock) then
+--      local objecttype,objectid = radar.GetRadarSelectionID()
+--      -- safely use the object type/id values.  This was a valid targetting event
+--      -- not part of a scan or other lockable (ignorable) event.
+--  end
+--
+-- }}}
+--
+--]]
+targetless.api.radarlock = false
