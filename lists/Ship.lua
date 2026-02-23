@@ -277,18 +277,7 @@ function targetless.Ship:new(id)
         return iuplabel
     end
 
-    function ship:targetchild(offset)
-        radar.SetRadarSelection(GetPlayerNodeID(self.id), GetPrimaryShipIDOfPlayer(self.id))
-        local starttype,startid = radar.GetRadarSelectionID()
-        radar.SetRadarSelection(GetPlayerNodeID(self.id), GetPrimaryShipIDOfPlayer(self.id+offset))
-        local targettype,targetid = radar.GetRadarSelectionID()
-        if((targetid == startid) and targettype == starttype) then
-            return false
-        end
-        return true
-    end
-
-    -- get turret healths 
+    -- get turret healths
     function ship:getturrets()
         local turrets = {}
         local count = 0

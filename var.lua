@@ -177,15 +177,6 @@ targetless.var.layout.roid = {
     },
 }
 
---targetless.var.layout.pc = gkini.ReadString("targetless", "pclayout",
---    "[{<fill><istand><sstand><ustand><lstand>}{<health>}][{<name>}{<healthtext><pcship><fill><distance>}]")
---targetless.var.layout.npc = gkini.ReadString("targetless", "npclayout",
---    "[{<health>}][{<fill><lstand>}][{}{<healthtext><npcship><fill><distance>}]")
---targetless.var.layout.cap = gkini.ReadString("targetless", "npclayout",
---    "[{<health>}][{<fill><lstand>}][{}{<healthtext><npcship><fill><distance>}]")
---targetless.var.layout.roid = gkini.ReadString("targetless", "roidlayout", "{<tab><note><fill><id>}{<tab><ore>}")
-
-
 -- factions enum
 targetless.var.factions = {}
 targetless.var.factions[12] = "Ineubis"

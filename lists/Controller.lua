@@ -73,42 +73,7 @@ function targetless.Controller:switch()
         else self.mode = "none"
         end
     end
-    local statuscolor = "155 155 155"
-    if(self.fstatus == 2) then statuscolor = "155 32 32"
-    elseif(self.fstatus == 1) then statuscolor = "32 155 32"
-    end
-    local activestatuscolor = "255 255 255"
-    if(self.fstatus == 2) then activestatuscolor = "255 64 64"
-    elseif(self.fstatus == 1) then activestatuscolor = "64 255 64"
-    end
-    self.totals.pvplabel.fgcolor = "155 155 155"
-    self.totals.pvelabel.fgcolor = "155 155 155"
-    self.totals.pveblabel.fgcolor ="155 155 155"
-    self.totals.orelabel.fgcolor = "155 155 155"
-    self.totals.pvp.fgcolor = statuscolor
-    self.totals.cap.fgcolor = statuscolor
-    self.totals.bomb.fgcolor = statuscolor
-    self.totals.all.fgcolor = statuscolor
-    self.totals.roids.fgcolor = statuscolor
-    if(self.mode == "PvP") then
-        self.totals.pvplabel.fgcolor = "255 255 255"
-        self.totals.pvp.fgcolor = activestatuscolor
-    elseif(self.mode == "Cap") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.cap.fgcolor = activestatuscolor
-    elseif(self.mode == "Bomb") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.bomb.fgcolor = activestatuscolor
-    elseif(self.mode == "All") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.all.fgcolor = activestatuscolor
-    elseif(self.mode == "Ore") then
-        self.totals.orelabel.fgcolor = "255 255 255"
-        self.totals.roids.fgcolor = activestatuscolor
-    end
+    self:updatetotalcolors()
     self.currentbuffer.mode = self.mode
     self.rebuildbuffer.mode = self.mode
     self:update()
@@ -176,42 +141,7 @@ function targetless.Controller:switchback()
         end
     end
 
-    local statuscolor = "155 155 155"
-    if(self.fstatus == 2) then statuscolor = "155 32 32"
-    elseif(self.fstatus == 1) then statuscolor = "32 155 32"
-    end
-    local activestatuscolor = "255 255 255"
-    if(self.fstatus == 2) then activestatuscolor = "255 64 64"
-    elseif(self.fstatus == 1) then activestatuscolor = "64 255 64"
-    end
-    self.totals.pvplabel.fgcolor = "155 155 155"
-    self.totals.pvelabel.fgcolor = "155 155 155"
-    self.totals.pveblabel.fgcolor ="155 155 155"
-    self.totals.orelabel.fgcolor = "155 155 155"
-    self.totals.pvp.fgcolor = statuscolor
-    self.totals.cap.fgcolor = statuscolor
-    self.totals.bomb.fgcolor = statuscolor
-    self.totals.all.fgcolor = statuscolor
-    self.totals.roids.fgcolor = statuscolor
-    if(self.mode == "PvP") then
-        self.totals.pvplabel.fgcolor = "255 255 255"
-        self.totals.pvp.fgcolor = activestatuscolor
-    elseif(self.mode == "Cap") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.cap.fgcolor = activestatuscolor
-    elseif(self.mode == "Bomb") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.bomb.fgcolor = activestatuscolor
-    elseif(self.mode == "All") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.all.fgcolor = activestatuscolor
-    elseif(self.mode == "Ore") then
-        self.totals.orelabel.fgcolor = "255 255 255"
-        self.totals.roids.fgcolor = activestatuscolor
-    end
+    self:updatetotalcolors()
     self.currentbuffer.mode = self.mode
     self.rebuildbuffer.mode = self.mode
     self:update()
@@ -250,6 +180,48 @@ end
 
 targetless.Controller.totals = {}
 targetless.Controller.totals.iup = nil
+
+-- Update the fgcolor of all totals bar labels to reflect current mode and fstatus.
+-- Call this any time mode or fstatus changes.
+function targetless.Controller:updatetotalcolors()
+    local statuscolor = "155 155 155"
+    if(self.fstatus == 2) then statuscolor = "155 32 32"
+    elseif(self.fstatus == 1) then statuscolor = "32 155 32"
+    end
+    local activestatuscolor = "255 255 255"
+    if(self.fstatus == 2) then activestatuscolor = "255 64 64"
+    elseif(self.fstatus == 1) then activestatuscolor = "64 255 64"
+    end
+    self.totals.pvplabel.fgcolor = "155 155 155"
+    self.totals.pvelabel.fgcolor = "155 155 155"
+    self.totals.pveblabel.fgcolor = "155 155 155"
+    self.totals.orelabel.fgcolor = "155 155 155"
+    self.totals.pvp.fgcolor = statuscolor
+    self.totals.cap.fgcolor = statuscolor
+    self.totals.bomb.fgcolor = statuscolor
+    self.totals.all.fgcolor = statuscolor
+    self.totals.roids.fgcolor = statuscolor
+    if(self.mode == "PvP") then
+        self.totals.pvplabel.fgcolor = "255 255 255"
+        self.totals.pvp.fgcolor = activestatuscolor
+    elseif(self.mode == "Cap") then
+        self.totals.pvelabel.fgcolor = "255 255 255"
+        self.totals.pveblabel.fgcolor = "255 255 255"
+        self.totals.cap.fgcolor = activestatuscolor
+    elseif(self.mode == "Bomb") then
+        self.totals.pvelabel.fgcolor = "255 255 255"
+        self.totals.pveblabel.fgcolor = "255 255 255"
+        self.totals.bomb.fgcolor = activestatuscolor
+    elseif(self.mode == "All") then
+        self.totals.pvelabel.fgcolor = "255 255 255"
+        self.totals.pveblabel.fgcolor = "255 255 255"
+        self.totals.all.fgcolor = activestatuscolor
+    elseif(self.mode == "Ore") then
+        self.totals.orelabel.fgcolor = "255 255 255"
+        self.totals.roids.fgcolor = activestatuscolor
+    end
+end
+
 function targetless.Controller:generatetotals()
     if self.totals.iup ~= nil then
         iup.Detach(self.totals.iup)
@@ -267,26 +239,7 @@ function targetless.Controller:generatetotals()
     targetless.Controller.totals.pveblabel = iup.label { title=")", fgcolor="155 155 155", font=targetless.var.font }
     targetless.Controller.totals.orelabel = iup.label { title="Ore:", fgcolor="155 155 155", font=targetless.var.font }
 
-    local statuscolor = "155 155 155"
-    if(self.fstatus == 2) then statuscolor = "155 32 32"
-    elseif(self.fstatus == 1) then statuscolor = "32 155 32"
-    end
-    local activestatuscolor = "255 255 255"
-    if(self.fstatus == 2) then activestatuscolor = "255 64 64"
-    elseif(self.fstatus == 1) then activestatuscolor = "64 255 64"
-    end
-
-    if(self.mode == "PvP") then
-        self.totals.pvplabel.fgcolor = "255 255 255"
-        self.totals.pvp.fgcolor = activestatuscolor
-    elseif(self.mode == "Cap" or self.mode == "Bomb" or self.mode == "All") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        if(self.mode == "Cap") then self.totals.cap.fgcolor = activestatuscolor
-        elseif(self.mode == "Bomb") then self.totals.bomb.fgcolor = activestatuscolor
-        elseif(self.mode == "All") then self.totals.all.fgcolor = activestatuscolor
-        end
-    elseif(self.mode == "Ore") then  self.totals.roids.fgcolor = "255 255 255" end
+    self:updatetotalcolors()
 
     local iupbox = iup.hbox {}
     iup.Append(iupbox,iup.fill{})
@@ -485,43 +438,7 @@ function targetless.Controller:cyclestatus()
     self.currentbuffer.fstatus = self.fstatus
     self.rebuildbuffer.fstatus = self.fstatus
 
-    -- update totals colors
-    local statuscolor = "155 155 155"
-    if(self.fstatus == 2) then statuscolor = "155 32 32"
-    elseif(self.fstatus == 1) then statuscolor = "32 155 32"
-    end
-    local activestatuscolor = "255 255 255"
-    if(self.fstatus == 2) then activestatuscolor = "255 64 64"
-    elseif(self.fstatus == 1) then activestatuscolor = "64 255 64"
-    end
-    self.totals.pvplabel.fgcolor = "155 155 155"
-    self.totals.pvelabel.fgcolor = "155 155 155"
-    self.totals.pveblabel.fgcolor ="155 155 155"
-    self.totals.orelabel.fgcolor = "155 155 155"
-    self.totals.pvp.fgcolor = statuscolor
-    self.totals.cap.fgcolor = statuscolor
-    self.totals.bomb.fgcolor = statuscolor
-    self.totals.all.fgcolor = statuscolor
-    self.totals.roids.fgcolor = statuscolor
-    if(self.mode == "PvP") then
-        self.totals.pvplabel.fgcolor = "255 255 255"
-        self.totals.pvp.fgcolor = activestatuscolor
-    elseif(self.mode == "Cap") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.cap.fgcolor = activestatuscolor
-    elseif(self.mode == "Bomb") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.bomb.fgcolor = activestatuscolor
-    elseif(self.mode == "All") then
-        self.totals.pvelabel.fgcolor = "255 255 255"
-        self.totals.pveblabel.fgcolor ="255 255 255"
-        self.totals.all.fgcolor = activestatuscolor
-    elseif(self.mode == "Ore") then
-        self.totals.orelabel.fgcolor = "255 255 255"
-        self.totals.roids.fgcolor = activestatuscolor
-    end
+    self:updatetotalcolors()
     self:update()
 end
 
@@ -645,6 +562,6 @@ function targetless.Controller:update()
         if HUD.hud_toggled_off then return end
         self.rebuildbuffer:reset(true)
         self:switchbuffers()
-        targetless.var.lock = nil
+        targetless.var.lock = false
    end
 end

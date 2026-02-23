@@ -103,7 +103,7 @@ function targetless.Buffer:new()
             end
         else
             -- ProcessEvent('TLS_BUFFER_READY', self)
-            if not self.rush == true then
+            if not (self.rush == true) then
                 targetless.Controller:switchbuffers()
             end
         end
