@@ -139,7 +139,7 @@ function targetless.Controller:switchback()
             if(targetless.var.huddisplay.showships == "ON") then
                 self.mode = "All"
             elseif(targetless.var.huddisplay.showbomb == "ON") then
-                self.mode = "Bombships"
+                self.mode = "Bomb"
             elseif(targetless.var.huddisplay.showcaps == "ON") then
                 self.mode = "Cap"
             elseif(targetless.var.huddisplay.showpvp == "ON") then

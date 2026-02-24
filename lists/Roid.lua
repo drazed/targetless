@@ -6,30 +6,8 @@ function targetless.Roid:new()
         note = "",
         ore = "",
         distance = -1,
-        label = nil,
         fontcolor = "255 255 255",
     }
-   
-    function roid:getiup(format)
-        if(format == nil) then 
-            format = targetless.var.layout.roid
-        end
-        local layers = format
-        local iupzbox = iup.zbox { iup.vbox{},all="YES" }
-        for i,layerz in ipairs(layers) do
-            local iupvbox = iup.vbox {}
-            for j,layery in ipairs(layerz) do
-                local iuphbox = iup.hbox {}
-                for k,layerx in ipairs(layery) do
-                    local iuplabel = self:getlabelbytag(layerx)
-                    iup.Append(iuphbox, iuplabel)
-                end
-                iup.Append(iupvbox, iuphbox)
-            end
-            iup.Append(iupzbox, iupvbox)
-        end
-        return iupzbox
-    end
 
     function roid:updatedistance()
         -- Lock both flags: var.lock blocks Controller:update() rush builds,
@@ -123,12 +101,6 @@ function targetless.Roid:new()
         return true
     end
 
-    function roid:destroy()
-        if(self.label) then
-            iup.Detach(self.label)
-            iup.Destroy(self.label)
-        end
-    end
     return roid
 end
 

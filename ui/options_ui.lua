@@ -312,7 +312,6 @@ iup.Detach(targetless.ui.options.main[1][1][1][2])
 function targetless.ui.options.main:OnShow()
     local maxtext = "" .. targetless.var.listmax .. ""
     targetless.ui.options.element.maxlsize.value = "" .. targetless.var.listmax
-    targetless.var.pagekey = gkini.ReadString("targetless", "pagekey", "-")
     if targetless.var.sortBy == "distance" then targetless.ui.options.element.slist.value = 1
     elseif targetless.var.sortBy == "health" then  targetless.ui.options.element.slist.value = 2 
     else targetless.ui.options.element.slist.value = 3 end

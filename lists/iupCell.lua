@@ -226,7 +226,7 @@ function targetless.Cell:new()
         if ship.cap then
             self.pcstands.visible = "NO"
             self.shiptype.title = ""
-            local capname = (ship.ship or "") .. " " .. ship.name
+            local capname = ship.name .. " " .. (ship.ship or "")
             if #capname > trim + 2 then capname = capname:sub(1, trim) .. ".." end
             self.name.title   = capname
             self.name.fgcolor = namecolor

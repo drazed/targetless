@@ -14,8 +14,6 @@ function targetless.Ship:new(id)
         ustand = GetPlayerFactionStanding(3, id),
         lstand = GetPlayerFactionStanding("sector", id),
         ship = GetPrimaryShipNameOfPlayer(id),
-        label = nil,
-        numlabel = nil,
         fontcolor = "150 150 150",
         font = targetless.var.font
     }
@@ -221,7 +219,7 @@ function targetless.Ship:new(id)
                 iuplabel,
                 iupfaction,
             }
-            return iupbox 
+            return iupbox
         elseif(tag == "<turrets>") then
             --[[
             local turrets = self:getturrets()
@@ -277,13 +275,13 @@ function targetless.Ship:new(id)
         return iuplabel
     end
 
-    -- get turret healths
+    -- get turret healths (future feature, used by <turrets> tag)
     function ship:getturrets()
         local turrets = {}
         local count = 0
-        if(self.ship == "Heavy Assault Cruiser") then count = 21 
-        elseif(self.ship == "TPG Teradon Frigate") then count = 32 
-        elseif(self.ship == "Trident Light Frigate") then count = 4 
+        if(self.ship == "Heavy Assault Cruiser") then count = 21
+        elseif(self.ship == "TPG Teradon Frigate") then count = 32
+        elseif(self.ship == "Trident Light Frigate") then count = 4
         elseif(self.ship == "TPG Constellation Heavy Transport") then count = 12
         end
 
@@ -294,12 +292,11 @@ function targetless.Ship:new(id)
             turrets[i] = 0
             if active then
                 turrets[i] = tonumber(HUD.targethealth.value or 0)
-                if startid == GetPrimaryShipIDOfPlayer(self.id)+i then 
+                if startid == GetPrimaryShipIDOfPlayer(self.id)+i then
                     turrets.current = i
                 end
             end
             i = i + 1
-            --if(#turrets > 10) then break end
         end
         radar.SetRadarSelection(starttype, startid)
         return turrets
@@ -328,17 +325,17 @@ function targetless.Ship.turretbar(health, active)
     local fade = 64
     if active then fade = 255 end
     local bar = iup.stationprogressbar{visible="YES",active="NO",size="10x4",title=""}
-    bar.minvalue = 0 
-    bar.maxvalue = 100 
+    bar.minvalue = 0
+    bar.maxvalue = 100
     bar.uppercolor = "64 64 64 64 *"
     bar.lowercolor = calc_health_color(health/100, fade)
-    bar.value = health 
+    bar.value = health
     local topbar = iup.stationprogressbar{visible="YES",active="NO",size="10x3",title=""}
     topbar.minvalue = 0
-    topbar.maxvalue = 100 
+    topbar.maxvalue = 100
     topbar.uppercolor = "255 255 128 "..fade.." *"
     topbar.lowercolor = "255 255 128 "..fade.." *"
-    topbar.value = 0 
+    topbar.value = 0
 
     local iupbox = iup.vbox{
         topbar,

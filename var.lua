@@ -2,11 +2,9 @@ targetless.var = {}
 targetless.var.timer = Timer()
 targetless.var.version = "1.7.18"
 targetless.var.state = false
-targetless.var.updatelock = false
 targetless.var.targetnum = 0
-targetless.var.lasttarget = nil 
+targetless.var.lasttarget = nil
 targetless.var.lasttype = nil
-targetless.var.listpage = "target"
 targetless.var.faction = gkini.ReadString("targetless", "factiontype", "bar")
 targetless.var.noteoffset = 741937
 targetless.var.fontscale = gkini.ReadInt("targetless", "fontscale", 50)/100
@@ -36,11 +34,8 @@ end
 targetless.var.fontcalc()
 
 -- config settings
-targetless.var.refreshDelay = tonumber(gkini.ReadString("targetless", "refresh", "1000"))
-targetless.var.place = gkini.ReadString("targetless", "place", "right")
 targetless.var.sortBy = gkini.ReadString("targetless", "sort", "distance")
 targetless.var.oresort = gkini.ReadString("targetless", "oresort", "Heliocene")
-targetless.var.showRoid = gkini.ReadString("targetless", "roidtab", "ON")
 targetless.var.showtls = gkini.ReadString("targetless", "showtls", "ON")
 targetless.var.showself = gkini.ReadString("targetless", "showself", "ON")
 targetless.var.showselfcenter = gkini.ReadString("targetless", "showselfcenter", "OFF")
@@ -49,10 +44,8 @@ targetless.var.listmax = tonumber(gkini.ReadString("targetless", "listmax", "10"
 targetless.var.roidmax = tonumber(gkini.ReadString("targetless", "roidmax", "10"))
 targetless.var.roidrefresh = tonumber(gkini.ReadString("targetless", "roidrefresh", "3000"))
 targetless.var.selfframe = gkini.ReadString("targetless", "selfframe", "OFF")
-targetless.var.selfcapframe = gkini.ReadString("targetless", "selfcapframe", "OFF")
 targetless.var.pinframe = gkini.ReadString("targetless", "pinframe", "ON")
 targetless.var.listframe = gkini.ReadString("targetless", "listframe", "OFF")
-targetless.var.showore = gkini.ReadString("targetless", "showore", "ON")
 targetless.var.scanall = gkini.ReadString("targetless", "scanall", "ON")
 
 targetless.var.autopin = {}
@@ -89,43 +82,6 @@ targetless.var.layout.selfcenter = {
         {"<healthtext>","<fill>","<lstand>"},
     },
 }
-
-targetless.var.layout.center = {
-    {
-        {"<distance>","<fill>"},
-        {"<healthtext>","<fill>"},
-        {"<tab>","<fill>"},
-        {"<health>"},
-    },
-    {
-        {"<fill>","<istand>","<sstand>","<ustand>","<lstand>"},
-        {"<tab>","<fill>"},
-        {"<fill>","<pcship>"},
-        {"<name>","<fill>"},
-    },
-}
-
--- this is the new format to be used by all ships
--- ships can hide these values as needed, but layout if present is locked
--- to what this container defines :(
---
--- TODO implement list cells, in progress
-targetless.var.layout.ship = {
-    {
-        {"<tab>","<health>"},
-
-        -- this row won't be present on npc's
-        {"<pcship>","<fill>","<istand>","<sstand>","<ustand>"},
-    },
-    {
-        {"<fill>","<distance>","<lstand>"},
-    },
-    {
-        -- name is set to ship for npc's, playername for pc's.
-        {"<tab>","<healthtext>","<name>","<fill>"},
-    },
-}
-
 
 targetless.var.layout.pc = {
     {

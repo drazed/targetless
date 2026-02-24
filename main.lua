@@ -93,7 +93,6 @@ function targetless.re_attach()
     targetless.Controller.rebuildbuffer:reset()
 
     while(targetless.RoidList[1]) do table.remove(targetless.RoidList, 1) end
-    targetless.Controller.iup = nil
     targetless.Controller.selfinfo = nil
     targetless.Controller.centerHUD = nil
     targetless.Controller.totals.iup = nil
