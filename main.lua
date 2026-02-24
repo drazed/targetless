@@ -97,6 +97,12 @@ function targetless.re_attach()
     targetless.Controller.selfinfo = nil
     targetless.Controller.centerHUD = nil
     targetless.Controller.totals.iup = nil
+    -- VO already destroyed the widget trees on HUD_RELOADED, so nil out
+    -- references to prevent appendiups() from Detach/Destroy on dead widgets.
+    targetless.var.PlayerData = nil
+    targetless.var.centerHUDinfo = nil
+    targetless.var.celllists = nil
+    targetless.Controller.shiplist = nil
     targetless.appendiups()
     if GetStationLocation() == nil then targetless.Controller:update() end
     targetless.RoidList:load(GetCurrentSectorid())
@@ -339,14 +345,32 @@ function targetless.init:OnEvent(eventname, ...)
 end
 
 function targetless.appendiups()
-    -- set sizes back to quarter for targetinfo and license watch
-    --HUD.licensewatchframe.size="QUARTER"
-    --HUD.missiontimerframe.size="QUARTER"
-    --HUD.targetframe.size="QUARTER"
+    -- Clean up old widget trees to prevent duplicates when called from OnHide.
+    -- We only Detach (not Destroy) the top-level containers because they hold
+    -- borrowed HUD elements (targetframe, selfinfoframe, etc.) that VO still
+    -- references.  Destroying would kill those shared handles.
+    -- Hide old cells before detaching so their native widgets stop rendering.
+    if targetless.Controller.shiplist then
+        for _, cell in ipairs(targetless.Controller.shiplist.cells) do
+            cell:clear()
+        end
+        targetless.Controller.shiplist.pincontainer.visible = "NO"
+    end
+    if targetless.var.PlayerData then
+        targetless.var.PlayerData.visible = "NO"
+        iup.Detach(targetless.var.PlayerData)
+        targetless.var.PlayerData = nil
+    end
+    if targetless.var.centerHUDinfo then
+        targetless.var.centerHUDinfo.visible = "NO"
+        iup.Detach(targetless.var.centerHUDinfo)
+        targetless.var.centerHUDinfo = nil
+    end
 
     iup.Append(iup.GetParent(HUD.targetframe), iup.hbox{iup.fill{size="QUARTER"}})
 
-    -- Reset cell list so old widget trees are released before new ones are created.
+    -- Release old cell list reference; the widgets are inside the already-detached
+    -- PlayerData tree and will be collected by Lua GC.
     targetless.Controller.shiplist = nil
 
     targetless.Controller:generatetotals()
@@ -447,7 +471,7 @@ function targetless.appendiups()
 
     local yres = gkinterface.GetYResolution()*HUD_SCALE
     targetless.var.centerHUD = iup.vbox{}
-    local centerHUDinfo = iup.hbox
+    targetless.var.centerHUDinfo = iup.hbox
     {
         iup.fill{},
         iup.vbox{
@@ -459,7 +483,7 @@ function targetless.appendiups()
         iup.fill{},
         alignment="ACENTER",
     }
-    iup.Append(HUD.pluginlayer, centerHUDinfo)
+    iup.Append(HUD.pluginlayer, targetless.var.centerHUDinfo)
 
     local bsinfo = iup.GetParent(HUD.BSinfo.enemylabel)
     targetless.var.PlayerData.expand = "NO"

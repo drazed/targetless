@@ -34,12 +34,19 @@ function targetless.Controller:roidRefreshStep()
         return
     end
 
+    -- Only update distances for visible roids:
+    -- Ore mode: all roids are visible, update them all.
+    -- Other modes: only pinned roids are visible.
     if #targetless.RoidList > 0 then
         self.roid_index = self.roid_index + 1
         if self.roid_index > #targetless.RoidList then
             self.roid_index = 1
         end
-        targetless.RoidList[self.roid_index]:updatedistance()
+        local roid = targetless.RoidList[self.roid_index]
+        local mode = self.currentbuffer.mode or self.mode
+        if mode == "Ore" or self.pin["roid:" .. roid.id] == 1 then
+            roid:updatedistance()
+        end
     end
 
     -- Space updates so one full cycle through all roids takes ~roidrefresh ms.
@@ -192,6 +199,8 @@ function targetless.Controller:switchback()
 end
 
 -- this does not save the sort order, only temporarily cycles it.
+-- Destroys and recreates all cells to guarantee a clean slate, then
+-- re-populates with current data using the new sort key.
 function targetless.Controller:sort()
     if(self.mode == "none") then return
     elseif(self.mode == "Ore") then
@@ -202,7 +211,6 @@ function targetless.Controller:sort()
                 else
                     targetless.var.oresort = targetless.RoidList.sortorder[1]
                 end
-                targetless.RoidList:load(GetCurrentSectorid())
                 self:update()
                 HUD:PrintSecondaryMsg("\127ffffffOre sorted by "..targetless.var.oresort.."\127o")
                 return
@@ -369,52 +377,90 @@ local function make_roid_item(roid)
     }
 end
 
+-- Sort comparator using the configured sortBy key ("distance", "health", "faction").
+-- Roids only have distance, so health/faction fall back to 0 (sort to top).
+local function sort_by_key(a, b)
+    local key = targetless.var.sortBy
+    local av = tonumber(a[key] or 0) or 0
+    local bv = tonumber(b[key] or 0) or 0
+    return av < bv
+end
+
+-- Sort comparator for ore mode: primary by oresort percentage (descending),
+-- secondary by distance (ascending).
+local function sort_by_ore(a, b)
+    local ore_key = targetless.var.oresort
+    local ao = tonumber(a.ore and a.ore[ore_key] or 0) or 0
+    local bo = tonumber(b.ore and b.ore[ore_key] or 0) or 0
+    if ao ~= bo then return ao > bo end
+    local ad = tonumber(a.distance or 0) or 0
+    local bd = tonumber(b.distance or 0) or 0
+    return ad < bd
+end
+
 -- Populate the pre-allocated cell list from the completed buffer.
--- Builds a unified display list: [pinned ships + pinned roids] + [mode items].
+-- Builds a unified display list: [pinned items (sorted)] + [mode items (sorted)].
 -- Cross-mode pinning: pinned roids show on ship lists, pinned ships show on roid list.
 function targetless.Controller:populatecells(buffer)
     if not targetless.var.state then return end
     if not self.shiplist then return end
 
-    local items = {}
-    local pincount = 0
-
-    -- 1. Pinned ships (always shown regardless of mode)
+    -- 1. Collect all pinned items (ships + roids), sort together by sortBy
+    local pinned = {}
     local ship_pincount = buffer.pinned and #buffer.pinned or 0
     for i = 1, ship_pincount do
-        items[#items + 1] = buffer.pinned[i]
-        pincount = pincount + 1
+        pinned[#pinned + 1] = buffer.pinned[i]
     end
-
-    -- 2. Pinned roids (always shown regardless of mode)
     for _, roid in ipairs(targetless.RoidList) do
         if self.pin["roid:" .. roid.id] == 1 then
-            items[#items + 1] = make_roid_item(roid)
-            pincount = pincount + 1
+            pinned[#pinned + 1] = make_roid_item(roid)
         end
     end
+    table.sort(pinned, sort_by_key)
 
-    -- 3. Mode-specific non-pinned items
+    local items = {}
+    local pincount = #pinned
+    for i = 1, pincount do
+        items[#items + 1] = pinned[i]
+    end
+
+    -- 2. Mode-specific non-pinned items
     if buffer.mode == "Ore" then
-        -- Ore mode: show non-pinned roids
+        -- Ore mode: sort by oresort percentage (descending), then distance (ascending)
+        local roids = {}
         for _, roid in ipairs(targetless.RoidList) do
             if self.pin["roid:" .. roid.id] ~= 1 then
-                if #items >= targetless.var.listmax then break end
-                items[#items + 1] = make_roid_item(roid)
+                roids[#roids + 1] = make_roid_item(roid)
             end
         end
+        table.sort(roids, sort_by_ore)
+        for _, item in ipairs(roids) do
+            if #items >= targetless.var.listmax then break end
+            items[#items + 1] = item
+        end
     elseif buffer.mode ~= "none" then
-        -- Ship modes: show filtered ships
+        -- Ship modes: sort dynamically so sort-key changes take effect
+        -- without requiring a full rush rebuild.
+        local ships = {}
         local shipcount = buffer.ships and #buffer.ships or 0
         for i = 1, shipcount do
-            items[#items + 1] = buffer.ships[i]
+            ships[#ships + 1] = buffer.ships[i]
+        end
+        table.sort(ships, sort_by_key)
+        for i = 1, #ships do
+            if #items >= targetless.var.listmax then break end
+            items[#items + 1] = ships[i]
         end
     end
 
     buffer.items = items
-    self.shiplist:populate(items, 0, pincount)
-    if targetless.var.PlayerData then
-        iup.Refresh(targetless.var.PlayerData)
+    local layout_changed = self.shiplist:populate(items, 0, pincount)
+    -- Only refresh layout when structural changes occurred (cell count or
+    -- pincount changed).  Content-only updates (sort reorder, property
+    -- mutations) don't need a Refresh and triggering one can cause IUP
+    -- layout artefacts.  Scope to the cell container, not the full panel.
+    if layout_changed and self.shiplist.iup then
+        iup.Refresh(self.shiplist.iup)
     end
 end
 
@@ -483,7 +529,7 @@ function targetless.Controller:updateself()
     end
 
     iup.Append(targetless.var.selfship, self.selfinfo)
-    iup.Map(iup.GetDialog(self.selfinfo))
+    iup.Map(self.selfinfo)
     iup.Refresh(targetless.var.selfship)
 end
 
@@ -536,7 +582,7 @@ function targetless.Controller:updatecenter()
 
     }
     iup.Append(targetless.var.centerHUD, self.centerHUD)
-    iup.Map(iup.GetDialog(self.centerHUD))
+    iup.Map(self.centerHUD)
     iup.Refresh(targetless.var.centerHUD)
 end
 

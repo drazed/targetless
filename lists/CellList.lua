@@ -20,6 +20,7 @@ function targetless.CellList:new(size)
         shipvbox      = iup.vbox{},   -- non-pinned cells go here
         pincontainer  = nil,          -- hudrightframe or pinvbox; toggled visible when pins > 0
         last_pincount = 0,
+        last_count    = 0,
         iup           = nil,          -- top-level mount point
     }
 
@@ -44,9 +45,12 @@ function targetless.CellList:new(size)
     -- Update cells from items array, clear remainder.
     -- offset: added to i to produce the display index.
     -- pincount: items[1..pincount] are pinned (shown in framed container).
+    -- Returns true if layout changed (reparenting or cell count changed),
+    -- meaning the caller should call iup.Refresh on the container.
     function list:populate(items, offset, pincount)
         local count = items and #items or 0
         pincount = pincount or 0
+        local layout_changed = false
 
         -- Re-parent cells between pinvbox and shipvbox when pin count changes.
         if pincount ~= self.last_pincount then
@@ -62,6 +66,13 @@ function targetless.CellList:new(size)
             end
             self.pincontainer.visible = (pincount > 0) and "YES" or "NO"
             self.last_pincount = pincount
+            layout_changed = true
+        end
+
+        -- Track whether visible cell count changed (cells shown/hidden).
+        if count ~= self.last_count then
+            self.last_count = count
+            layout_changed = true
         end
 
         for i = 1, self.size do
@@ -71,6 +82,8 @@ function targetless.CellList:new(size)
                 self.cells[i]:clear()
             end
         end
+
+        return layout_changed
     end
 
     -- Clear (hide) all cells.
@@ -81,7 +94,9 @@ function targetless.CellList:new(size)
     end
 
     -- Recreate all cells into the existing containers.
-    -- Call this when display settings change: font, faction mode, or listmax.
+    -- Call this when display settings change: font, faction mode, listmax,
+    -- or sort order.  Destroys all old cells and creates fresh ones,
+    -- guaranteeing no orphaned native widgets.
     function list:rebuild(new_size)
         for _, cell in ipairs(self.cells) do
             if cell.root then
@@ -91,6 +106,8 @@ function targetless.CellList:new(size)
         end
         self.cells = {}
         self.last_pincount = 0
+        self.last_count = 0
+        self.pincontainer.visible = "NO"
         if new_size then self.size = new_size end
         for i = 1, self.size do
             local cell = targetless.Cell:new()
@@ -99,6 +116,8 @@ function targetless.CellList:new(size)
             table.insert(self.cells, cell)
             iup.Append(self.shipvbox, cell.root)
         end
+        -- Map new cells into the already-mapped dialog.
+        iup.Map(self.shipvbox)
     end
 
     return list
