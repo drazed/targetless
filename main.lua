@@ -1,3 +1,67 @@
+--[[
+#The modreg section is required for all LME-compatible plugins. This is forward-registered into Neoloader.
+[modreg]
+#this is Neoloader's library API; loader ignores if mismatched
+API=3
+#this is your mod's internal ID.
+id=targetless
+#This is your mod's version number
+version=2.0.0 -EX
+#This is your mod's public, user-facing name
+name=Targetless
+#Optionally, this is your name as the mod creator
+author=Drazed
+
+#All of the below is optional (and not even used in the current version of Neoloader).
+#Metadata here defines this specific file, not the mod package. Intended for use in a possible in-game distribution platform
+[metadata]
+description=This is Targetless's main file
+version=1.0.0
+owner=targetless|2.0.0 -EX
+type=lua
+created=2026-2-23
+]]--
+if (type(lib) == "table") and (lib[0] == "LME") then
+
+    --LME API 3.12.x allows lib.get_path to attempt to find the current file's location by sniffing a pcall'd error.
+    --LME plugins can use this path to be location-fluid
+    --we use it here to mainly get a reference directory to our INI data above
+    local my_path = lib.get_path() or "plugins/targetless/"
+
+    --test if the file 'main.lua' exists where we expect.
+    if not gksys.IsExist(my_path .. "main.lua") then
+        --file doesn't exist, abort LME functionality and registration
+        --user is running pre-3.12.x LME provider (Neoloader 6.3.0) AND has put targetless in a directory other than /targetless/
+    else
+
+        --most LME functions can use INI data path instead of ID/Version pairs. we use this below:
+
+        --check if our plugin has been registered. if no, add to registry
+        if not lib.is_exist(my_path .. "main.lua") then
+            lib.register(my_path .. "main.lua")
+        end
+
+        --check if the user has enabled our plugin in-game.
+        --first time registration: plugin doesn't get run immediately; lets user inspect new plugins before executing them
+        --        post-first-registration: plugins may default to enabled or disabled, set by user configuration
+        if lib.get_state(my_path .. "main.lua").load == "NO" then
+            --plugin is set as disabled by user, abort main.lua
+            return
+        end
+
+        --an LME plugin's class is its public-facing data. Other plugins can obtain this through Neoloader.
+        local class = {
+            CCD1 = false, --your plugin doesn't have forward-declared configuration
+            description = "Targetless provides a HUD display for your sector list, among other utilities.", --displayed 'about' text in neomgr
+        }
+
+        --store the table reference in Neoloader
+        lib.set_class(my_path .. "main.lua", nil, class)
+
+    end
+end
+
+-- Begin Targetless initialization
 declare("targetless", {})
 targetless.start = {}
 targetless.stop = {}
