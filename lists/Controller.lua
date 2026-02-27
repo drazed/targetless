@@ -711,8 +711,7 @@ function targetless.Controller:update()
     if not targetless.var.lock then
         targetless.var.lock = true
         if HUD.hud_toggled_off then return end
-        self.rebuildbuffer:reset(true)
-        self:switchbuffers()
+        self.rebuildbuffer:reset()
         targetless.var.lock = false
    end
 end

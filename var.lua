@@ -50,6 +50,7 @@ targetless.var.scanall = gkini.ReadString("targetless", "scanall", "ON")
 
 targetless.var.autopin = {}
 targetless.var.autopin.damage = gkini.ReadString("targetless", "pindamage", "ON")
+targetless.var.reversewheel = gkini.ReadString("targetless", "reversewheel", "OFF")
 
 targetless.var.huddisplay = {}
 targetless.var.huddisplay.showpvp = gkini.ReadString("targetless", "showpvp", "ON")

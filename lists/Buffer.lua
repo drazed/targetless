@@ -2,7 +2,6 @@ targetless.Buffer = {}
 function targetless.Buffer:new()
     local buffer = {
         timer = Timer(),
-        rush = nil,
         delay = 10,
         ready = false,
         shipidbuffer = {},
@@ -20,11 +19,10 @@ function targetless.Buffer:new()
         fstatus = 0,
     }
 
-    function buffer:reset(rush)
+    function buffer:reset()
         self.timer = nil
         self.timer = Timer()
         self.ready = nil
-        self.rush = rush
         self.shipidbuffer = {}
 
         self.self = false
@@ -51,10 +49,7 @@ function targetless.Buffer:new()
                 end
             end
         end)
-        if self.rush == true then
-            self:step()
-        else self.timer:SetTimeout(self.delay, function() self:step() end)
-        end
+        self.timer:SetTimeout(self.delay, function() self:step() end)
     end
 
     function buffer:step()
@@ -75,13 +70,9 @@ function targetless.Buffer:new()
                 targetless.Controller:populatecells(self)
                 self.ready = true
             end
-            if self.rush == true then self:step()
-            else self.timer:SetTimeout(self.delay, function() self:step() end)
-            end
+            self.timer:SetTimeout(self.delay, function() self:step() end)
         else
-            if not (self.rush == true) then
-                targetless.Controller:switchbuffers()
-            end
+            targetless.Controller:switchbuffers()
         end
     end
 

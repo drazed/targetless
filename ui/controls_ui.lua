@@ -81,8 +81,13 @@ targetless.ui.controls.mouse.tab = iup.vbox{
 	hotkey=iup.K_m,
 }
 function targetless.ui.controls.mouse.apply:action()
-    gkinterface.GKProcessCommand("bind 'MWHEELUP' prevLS")
-    gkinterface.GKProcessCommand("bind 'MWHEELDOWN' nextLS")
+    if targetless.var.reversewheel == "ON" then
+        gkinterface.GKProcessCommand("bind 'MWHEELUP' nextLS")
+        gkinterface.GKProcessCommand("bind 'MWHEELDOWN' prevLS")
+    else
+        gkinterface.GKProcessCommand("bind 'MWHEELUP' prevLS")
+        gkinterface.GKProcessCommand("bind 'MWHEELDOWN' nextLS")
+    end
     gkinterface.GKProcessCommand("bind 'MMBUTTON' lsswitch")
     gkinterface.GKProcessCommand("bind '_' cyclestatus")
     gkinterface.GKProcessCommand("bind '=' addroid")

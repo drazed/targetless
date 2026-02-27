@@ -25,6 +25,7 @@ targetless.ui.options.element.basefontsize = iup.text { value = "" .. targetless
 targetless.ui.options.element.maxlsize = iup.text { value = "" .. targetless.var.listmax, size = "100x" }
 targetless.ui.options.element.autopin = {}
 targetless.ui.options.element.autopin.damage = iup.stationtoggle{title="auto-pin ships that damage you", value=targetless.var.autopin.damage}
+targetless.ui.options.element.reversewheel = iup.stationtoggle{title="Reverse mouse wheel direction", value=targetless.var.reversewheel}
 
 targetless.ui.options.element.scanall = iup.stationtoggle{title="save all scanned ore", value=targetless.var.scanall}
 targetless.ui.options.element.maxrsize = iup.text { value = "" .. targetless.var.roidmax, size = "100x" }
@@ -232,6 +233,7 @@ targetless.ui.options.lists.tab = iup.vbox{
         targetless.ui.options.element.listframe,
     },
     targetless.ui.options.element.autopin.damage,
+    targetless.ui.options.element.reversewheel,
     iup.fill{size="30"},
     iup.vbox{
         targetless.ui.options.element.showpvp,
@@ -382,9 +384,11 @@ function targetless.ui.options.main:OnHide()
     targetless.var.listframe = targetless.ui.options.element.listframe.value
     targetless.var.scanall = targetless.ui.options.element.scanall.value
     targetless.var.autopin.damage = targetless.ui.options.element.autopin.damage.value
+    targetless.var.reversewheel = targetless.ui.options.element.reversewheel.value
     targetless.var.faction = targetless.ui.options.element.flist[targetless.ui.options.element.flist.value]
     targetless.var.oresort = targetless.ui.options.element.oresort[targetless.ui.options.element.oresort.value] or targetless.var.oresort
     gkini.WriteString("targetless", "pindamage", ""..targetless.var.autopin.damage)
+    gkini.WriteString("targetless", "reversewheel", ""..targetless.var.reversewheel)
     gkini.WriteString("targetless", "showself", ""..targetless.var.showself)
     gkini.WriteString("targetless", "showselfcenter", ""..targetless.var.showselfcenter)
     gkini.WriteString("targetless", "showtargetcenter", ""..targetless.var.showtargetcenter)
