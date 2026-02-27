@@ -359,9 +359,12 @@ local function roid_ore_string(roid)
 end
 
 -- Wrap a Roid data object into a cell-compatible item table.
+-- Stores a live reference (_roid) so cells can read current distance
+-- without waiting for a full buffer rebuild to re-snapshot.
 local function make_roid_item(roid)
     return {
         roid     = true,
+        _roid    = roid,
         id       = roid.id,
         ore      = roid.ore,
         distance = roid.distance or -1,

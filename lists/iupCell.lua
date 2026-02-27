@@ -174,9 +174,10 @@ function targetless.Cell:new()
             self.name.title   = item.name   -- pre-formatted ore string with \127 color codes
             self.name.fgcolor = fc
 
-            -- Distance
-            if item.distance and item.distance > 0 then
-                self.distance.title = " " .. tostring(item.distance) .. "m "
+            -- Distance (read live from roid reference to avoid stale snapshots)
+            local dist = item._roid and item._roid.distance or item.distance
+            if dist and dist > 0 then
+                self.distance.title = " " .. tostring(dist) .. "m "
             else
                 self.distance.title = ""
             end
