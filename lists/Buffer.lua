@@ -44,17 +44,22 @@ function targetless.Buffer:new()
         ForEachPlayer(function (id)
             if id ~= GetCharacterID() then
                 table.insert(self.shipidbuffer, id)
-                if(not targetless.api.radarlock and HUD.targetname.title == "(none)") then
-                    if(GetPrimaryShipIDOfPlayer(id) == targetless.var.lasttarget) then radar.SetRadarSelection(targetless.var.lasttype, targetless.var.lasttarget) end
-                end
             end
         end)
+        self.targetrecovered = false
         self.timer:SetTimeout(self.delay, function() self:step() end)
     end
 
     function buffer:step()
         if targetless.var.state and not self.ready then
             if(#self.shipidbuffer > 0) then
+                -- recover lost target: check one player per tick instead of all at once
+                if not self.targetrecovered and not targetless.api.radarlock and HUD.targetname.title == "(none)" then
+                    if GetPrimaryShipIDOfPlayer(self.shipidbuffer[1]) == targetless.var.lasttarget then
+                        radar.SetRadarSelection(targetless.var.lasttype, targetless.var.lasttarget)
+                        self.targetrecovered = true
+                    end
+                end
                 self:addship(self.shipidbuffer[1])
                 table.remove(self.shipidbuffer, 1)
             elseif not self.self then

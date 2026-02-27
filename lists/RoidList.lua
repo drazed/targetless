@@ -62,8 +62,8 @@ function targetless.RoidList:add(id, note, ore)
 end
 
 function targetless.RoidList:clear()
-    while(self[1]) do
-        table.remove(self,1)
+    for i = #self, 1, -1 do
+        self[i] = nil
     end
 end
 
@@ -85,9 +85,30 @@ function targetless.RoidList:load(sectorID)
     self:clear()
     self.sector = sectorID
     local roids = unspickle(self.allroids[sectorID] or "") or {}
+    -- Bulk insert then sort once (O(n log n) vs O(n²) from repeated add())
     for i,v in pairs(roids) do
-        self:add(v.id, v.note, v.ore)
+        local roid = targetless.Roid:new()
+        roid.id = v.id
+        roid.ore = v.ore
+        roid.note = v.note
+        roid.fontcolor = "155 155 155"
+        table.insert(self, roid)
     end
+    local sortore = targetless.var.oresort
+    local sortorder = self.sortorder
+    table.sort(self, function(a, b)
+        -- Primary: sort by user-selected ore type descending
+        local aval = tonumber(a.ore[sortore] or 0)
+        local bval = tonumber(b.ore[sortore] or 0)
+        if aval ~= bval then return aval > bval end
+        -- Secondary: sort by first ore in sortorder that either has
+        for _, oretype in ipairs(sortorder) do
+            local ao = tonumber(a.ore[oretype] or 0)
+            local bo = tonumber(b.ore[oretype] or 0)
+            if ao ~= bo then return ao > bo end
+        end
+        return false
+    end)
     self.roidcount = #self
 end
 
